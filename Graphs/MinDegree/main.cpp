@@ -8,7 +8,7 @@
 
 using namespace std;
 int main() {
-	char filename[] = "..\\..\\..\\matrixes\\from_book.mtx";
+	char filename[] = "..\\..\\..\\matrixes\\nasa4704.mtx";
 	string format = "mtx";
 	spMtx<double> graph(filename, format);
 	////graph.print_dense();
@@ -24,8 +24,14 @@ int main() {
 	//}
 	//cout << '\n';
 	clock_t t = clock();
-	spMtx<double> new_order(MinDegree(graph));
+	int* perm = new int[graph.m];
+	//spMtx<double> new_order(MinDegree(graph));
+	MinDegree(graph.m, graph.Rst, graph.Col, perm);
 	cout << (double)(clock() - t) / CLOCKS_PER_SEC << '\n';
+	//for (int i = 0; i < graph.m; ++i) {
+	//	cout << perm[i] << ' ';
+	//}
+	delete[] perm;
 	////for (int i = 0; i < new_order.m; ++i) {
 	////	sort(new_order.Col + new_order.Rst[i], new_order.Col + new_order.Rst[i + 1]);
 	////}

@@ -117,3 +117,31 @@ spMtx<T> MinDegree(const spMtx<T>& mtx) {
 	out.close();
 	return new_order;
 }
+
+void MinDegree(const int& n, int* Rst, int* Col, int* perm) {
+	using namespace std;
+	vector<int> degrees(n);
+	unordered_map<int, unordered_set<int>> S, X_S;
+	for (int i = 0; i < n; ++i) {
+		for (int j = Rst[i]; j < Rst[i + 1]; ++j) {
+			X_S[i].insert(Col[j]);
+		}
+		degrees[i] = X_S[i].size();
+	}
+	int num = 0;
+	while (!X_S.empty()) {
+		//cout << "Step: " << num << '\n';
+		int x = 0, min_deg = n + 1;
+		for (auto& elem : X_S) {
+			if (degrees[elem.first] < min_deg) {
+				x = elem.first;
+				min_deg = degrees[elem.first];
+			}
+		}
+		perm[x] = num++;
+		transform_(x, S, X_S);
+		for (auto elem : S[x]) {
+			degrees[elem] = degree(elem, S, X_S, n);
+		}
+	}
+}

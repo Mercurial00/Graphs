@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MinDegree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MinDegree.h" />
