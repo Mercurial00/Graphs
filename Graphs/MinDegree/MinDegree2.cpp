@@ -72,19 +72,19 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::v
 		if (mask[y] != 0) {
 			continue;
 		}
-		bool flag = false;
-		vector<int> tmp;
-		for (int i = 0; i < NODES[y].size(); ++i) {
-			if (mask[NODES[y][i]] != 1) {
-				if (!flag && NODES[y][i] == x.front()) flag = true;
-				tmp.push_back(NODES[y][i]);
-			}
-		}
-		if (!flag) {
-			tmp.push_back(x.front());
-			//NODES[y].push_back(x.back());
-		}
-		NODES[y].swap(tmp);
+		//bool flag = false;
+		//vector<int> tmp;
+		//for (int i = 0; i < NODES[y].size(); ++i) {
+		//	if (mask[NODES[y][i]] != 1) {
+		//		if (!flag && NODES[y][i] == x.front()) flag = true;
+		//		tmp.push_back(NODES[y][i]);
+		//	}
+		//}
+		//if (!flag) {
+		//	tmp.push_back(x.front());
+			NODES[y].push_back(x.back());
+		//}
+		//NODES[y].swap(tmp);
 	}
 }
 
