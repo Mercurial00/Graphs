@@ -1,41 +1,42 @@
 #include "MinDegree2.h"
 
-std::vector<int> adj(const int& x, const std::vector<std::vector<int>>& NODES, std::vector<int> mask) {
+std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES, std::vector<int> mask) {
 	using namespace std;
-	vector<int> adj_;
+	vector<int> reach_;
 	mask[x] = 2;
-	//adj_.reserve(NODES.size());
 	for (const auto& i : NODES[x]) {
-		if (mask[i] == -1) {
+		if (mask[i] == 0) {
+			mask[i] = 2;
+			reach_.push_back(i);
+		}
+		else if (mask[i] == -1) {
 			for (const auto& j : NODES[i]) {
 				if (mask[j] == 0) {
 					mask[j] = 2;
-					adj_.push_back(j);
+					reach_.push_back(j);
 				}
 			}
-		}
-		else if (mask[i] == 0) {
 			mask[i] = 2;
-			adj_.push_back(i);
 		}
 	}
-	return adj_;
+	return reach_;
 }
 
 int degree(const int& x, const std::vector<std::vector<int>>& NODES, std::vector<int> mask) {
 	int deg = 0;
 	mask[x] = 2;
 	for (const auto& i : NODES[x]) {
-		if (mask[i] == -1) {
+		if (mask[i] == 0) {
+			++deg;
+			mask[i] = 2;
+		}
+		else if (mask[i] == -1) {
 			for (const auto& j : NODES[i]) {
 				if (mask[j] == 0) {
 					++deg;
 					mask[j] = 2;
 				}
 			}
-		}
-		else if (mask[i] == 0) {
-			++deg;
 			mask[i] = 2;
 		}
 	}
@@ -46,6 +47,9 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::v
 	using namespace std;
 	for (const auto& y : NODES[x.back()]) {
 		if (mask[y] == -1) {
+			//swap(NODES[y], vector<int>()); doesn't work for some reasone
+			//NODES[y] = vector<int>();
+			vector<int>().swap(NODES[y]);
 			mask[y] = 1;
 		}
 	}
@@ -54,6 +58,9 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::v
 		//int front = x.front();
 		NODES[x.back()].swap(NODES[x.front()]);
 		while (x.size() > 1) {
+			//NODES[x.front()] = vector<int>();
+			//swap(NODES[x.front()], vector<int>());
+			vector<int>().swap(NODES[x.front()]);
 			mask[x.front()] = 1;
 			perm[x.front()] = num++;
 			x.pop();
@@ -82,7 +89,7 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::v
 		//}
 		//if (!flag) {
 		//	tmp.push_back(x.front());
-			NODES[y].push_back(x.back());
+		NODES[y].push_back(x.back());
 		//}
 		//NODES[y].swap(tmp);
 	}
@@ -95,9 +102,10 @@ void MinDegree(const int& n, int* Rst, int* Col, int* perm) {
 	vector<int> mask(n);
 	vector<vector<int>> NODES(n);
 	for (int i = 0; i < n; ++i) {
-		for (int j = Rst[i]; j < Rst[i + 1]; ++j) {
-			NODES[i].push_back(Col[j]);
-		}
+		//for (int j = Rst[i]; j < Rst[i + 1]; ++j) {
+		//	NODES[i].push_back(Col[j]);
+		//}
+		NODES[i].insert(NODES[i].end(), Col + Rst[i], Col + Rst[i + 1]);
 		mask[i] = 0;
 		degrees[i] = NODES[i].size();
 	}
@@ -113,27 +121,39 @@ void MinDegree(const int& n, int* Rst, int* Col, int* perm) {
 		}
 		queue<int> indis;
 		indis.push(x);
-		NODES[x] = adj(x, NODES, mask);
+		NODES[x] = reach(x, NODES, mask);
 		sort(NODES[x].begin(), NODES[x].end());
 		for (const auto& y : NODES[x]) {
 			if (mask[y] == 0 && degrees[x] == degrees[y]) {
 				bool indistinguishable = true;
-				vector<int> y_reach = adj(y, NODES, mask);
+				vector<int> y_reach = reach(y, NODES, mask);
 				sort(y_reach.begin(), y_reach.end());
 				int i = 0, j = 0;
 				while (i < NODES[x].size() && j < y_reach.size()) {
-					if (NODES[x][i] == y) {
-						++i;
-						continue;
+					//if (NODES[x][i] == y) {
+					//	++i;
+					//	continue;
+					//}
+					//else if (y_reach[j] == x) {
+					//	++j;
+					//	continue;
+					//}
+					if (NODES[x][i] != y_reach[j]) {
+						if (NODES[x][i] == y) {
+							++i;
+							continue;
+						}
+						else if (y_reach[j] == x) {
+							++j;
+							continue;
+						}
+						else {
+							indistinguishable = false;
+							break;
+						}
 					}
-					else if (y_reach[j] == x) {
-						++j;
-						continue;
-					}
-					else if (NODES[x][i++] != y_reach[j++]) {
-						indistinguishable = false;
-						break;
-					}
+					i++;
+					j++;
 				}
 				if (indistinguishable) {
 					indis.push(y);
