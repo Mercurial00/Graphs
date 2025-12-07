@@ -1,6 +1,6 @@
 #include "MinDegree2.h"
 
-std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES, std::vector<int> mask) {
+std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES, std::vector<char> mask) {
 	using namespace std;
 	vector<int> reach_;
 	mask[x] = 2;
@@ -22,7 +22,7 @@ std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES,
 	return reach_;
 }
 
-int degree(const int& x, const std::vector<std::vector<int>>& NODES, std::vector<int> mask) {
+int degree(const int& x, const std::vector<std::vector<int>>& NODES, std::vector<char> mask) {
 	int deg = 0;
 	mask[x] = 2;
 	for (const auto& i : NODES[x]) {
@@ -43,34 +43,22 @@ int degree(const int& x, const std::vector<std::vector<int>>& NODES, std::vector
 	return deg;
 }
 
-void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::vector<int>& mask, int* perm, int& num) {
+void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::vector<char>& mask, int* perm, int& num) {
 	using namespace std;
 	for (const auto& y : NODES[x.back()]) {
 		if (mask[y] == -1) {
-			//swap(NODES[y], vector<int>()); doesn't work for some reasone
-			//NODES[y] = vector<int>();
 			vector<int>().swap(NODES[y]);
+			//NODES[y] = vector<int>();
 			mask[y] = 1;
 		}
 	}
-	if (x.size() != 1) {
-		//int t = NODES[x.front()].size();
-		//int front = x.front();
-		NODES[x.back()].swap(NODES[x.front()]);
-		while (x.size() > 1) {
-			//NODES[x.front()] = vector<int>();
-			//swap(NODES[x.front()], vector<int>());
-			vector<int>().swap(NODES[x.front()]);
-			mask[x.front()] = 1;
-			perm[x.front()] = num++;
-			x.pop();
-		}
-		//NODES[x.back()].resize(0);
-		//for (int i = 0; i < t; ++i) {
-		//	if (mask[NODES[front][i]] != 1 && NODES[front][i] != x.back()) {
-		//		NODES[x.back()].push_back(NODES[front][i]);
-		//	}
-		//}
+	NODES[x.back()].swap(NODES[x.front()]);
+	while (x.size() > 1) {
+		//NODES[x.front()] = vector<int>();
+		vector<int>().swap(NODES[x.front()]);
+		mask[x.front()] = 1;
+		perm[x.front()] = num++;
+		x.pop();
 	}
 	mask[x.front()] = -1;
 	perm[x.front()] = num++;
@@ -89,7 +77,7 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::v
 		//}
 		//if (!flag) {
 		//	tmp.push_back(x.front());
-		NODES[y].push_back(x.back());
+		NODES[y].push_back(x.front());
 		//}
 		//NODES[y].swap(tmp);
 	}
@@ -99,7 +87,7 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, std::v
 void MinDegree(const int& n, int* Rst, int* Col, int* perm) {
 	using namespace std;
 	vector<int> degrees(n);
-	vector<int> mask(n);
+	vector<char> mask(n);
 	vector<vector<int>> NODES(n);
 	for (int i = 0; i < n; ++i) {
 		//for (int j = Rst[i]; j < Rst[i + 1]; ++j) {
