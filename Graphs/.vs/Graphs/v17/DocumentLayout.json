@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\Graphs\\",
+  "WorkspaceRootPath": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs\\Graphs\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{02A2EA0C-2AC8-402F-AC07-7C54A2B14B7D}|MinDegree\\MinDegree.vcxproj|C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\Graphs\\MinDegree\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{02A2EA0C-2AC8-402F-AC07-7C54A2B14B7D}|MinDegree\\MinDegree.vcxproj|C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs\\Graphs\\MinDegree\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{02A2EA0C-2AC8-402F-AC07-7C54A2B14B7D}|MinDegree\\MinDegree.vcxproj|solutionrelative:MinDegree\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{02A2EA0C-2AC8-402F-AC07-7C54A2B14B7D}|MinDegree\\MinDegree.vcxproj|C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\Graphs\\MinDegree\\MinDegree2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{02A2EA0C-2AC8-402F-AC07-7C54A2B14B7D}|MinDegree\\MinDegree.vcxproj|C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs\\Graphs\\MinDegree\\MinDegree2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{02A2EA0C-2AC8-402F-AC07-7C54A2B14B7D}|MinDegree\\MinDegree.vcxproj|solutionrelative:MinDegree\\MinDegree2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
@@ -30,9 +30,9 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "main.cpp",
-              "DocumentMoniker": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\Graphs\\MinDegree\\main.cpp",
+              "DocumentMoniker": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs\\Graphs\\MinDegree\\main.cpp",
               "RelativeDocumentMoniker": "MinDegree\\main.cpp",
-              "ToolTip": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\Graphs\\MinDegree\\main.cpp",
+              "ToolTip": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs\\Graphs\\MinDegree\\main.cpp",
               "RelativeToolTip": "MinDegree\\main.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
@@ -45,14 +45,18 @@
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "MinDegree2.cpp",
-              "DocumentMoniker": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\Graphs\\MinDegree\\MinDegree2.cpp",
+              "DocumentMoniker": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs\\Graphs\\MinDegree\\MinDegree2.cpp",
               "RelativeDocumentMoniker": "MinDegree\\MinDegree2.cpp",
-              "ToolTip": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\Graphs\\MinDegree\\MinDegree2.cpp",
-              "RelativeToolTip": "MinDegree\\MinDegree2.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKUAAAADAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs\\Graphs\\MinDegree\\MinDegree2.cpp*",
+              "RelativeToolTip": "MinDegree\\MinDegree2.cpp*",
+              "ViewState": "AgIAANEAAAAAAAAAAAAkwOoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-02-04T19:08:38.169Z",
               "EditorCaption": ""
@@ -62,13 +66,12 @@
               "DocumentIndex": 2,
               "Title": "matrix.h",
               "DocumentMoniker": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\mtx_read\\matrix.h",
-              "RelativeDocumentMoniker": "..\\mtx_read\\matrix.h",
+              "RelativeDocumentMoniker": "..\\..\\Graphs_\\mtx_read\\matrix.h",
               "ToolTip": "C:\\Users\\Avanturist\\Documents\\LEARNING\\IT-Labs\\Graphs_\\mtx_read\\matrix.h",
-              "RelativeToolTip": "..\\mtx_read\\matrix.h",
+              "RelativeToolTip": "..\\..\\Graphs_\\mtx_read\\matrix.h",
               "ViewState": "AgIAAGcBAAAAAAAAAAAiwHIBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-02-04T19:08:11.723Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-04T19:08:11.723Z"
             },
             {
               "$type": "Document",
@@ -80,8 +83,7 @@
               "RelativeToolTip": "..\\..\\matrix.h",
               "ViewState": "AgIAABwAAAAAAAAAAAAiwC0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-02-04T19:03:05.646Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-04T19:03:05.646Z"
             }
           ]
         }
