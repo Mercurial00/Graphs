@@ -1,0 +1,9 @@
+﻿  MinDegree2.cpp
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs_\Graphs\MinDegree\MinDegree2.cpp(63,17): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs_\Graphs\MinDegree\MinDegree2.cpp(115,29): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  Создание кода
+  57 of 491 functions (11.6%) were compiled, the rest were copied from previous compilation.
+    11 functions were new in current compilation
+    39 functions had inline decision re-evaluated but remain unchanged
+  Создание кода завершено
+  MinDegree.vcxproj -> C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs_\Graphs\x64\Release\MinDegree.exe

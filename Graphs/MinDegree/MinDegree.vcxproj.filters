@@ -18,12 +18,12 @@
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="MinDegree.cpp">
+    <ClCompile Include="MinDegree2.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MinDegree.h">
+    <ClInclude Include="MinDegree2.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

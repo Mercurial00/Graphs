@@ -5,12 +5,12 @@
 #include <fstream>
 #include <chrono>
 #include "MinDegree2.h"
-#include "..\mtx_read\mmio.cpp"
-#include "..\mtx_read\matrix.h"
+#include "..\..\mtx_read\mmio.cpp"
+#include "..\..\mtx_read\matrix.h"
 
 using namespace std;
 int main() {
-	char filename[] = "..\\..\\matrixes\\thermomech_dM.mtx";
+	char filename[] = "..\\..\\..\\matrixes\\hood.mtx";
 
 	string format = "mtx";
 	spMtx<double> graph(filename, format);

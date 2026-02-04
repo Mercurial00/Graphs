@@ -2,23 +2,25 @@
 
 std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree) {
 	using namespace std;
-	vector<int> reach_;
-	reach_.reserve(degree);
+	vector<int> reach_(degree);
+	int k = 0;
+	//reach_.reserve(degree);
 	mask[x] = 2;
-	//int k = 0;
 	for (const auto& i : NODES[x]) {
 		if (mask[i] == 0) {
 			mask[i] = 2;
-			reach_.push_back(i);
+			reach_[k++] = i;
 		}
 		else if (mask[i] == -1) {
+			//	if (reach_.size() == degree) break;
 			for (const auto& j : NODES[i]) {
 				if (mask[j] == 0) {
 					mask[j] = 2;
-					reach_.push_back(j);
+					reach_[k++] = j;
 				}
 			}
 		}
+		if (k == degree) break;
 	}
 	mask[x] = 0;
 	sort(reach_.begin(), reach_.end());
@@ -59,13 +61,13 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 	using namespace std;
 	int curr = x.back();
 	int merged_cnt = x.size() - 1;
-	for (const auto& y : NODES[curr]) {
-		if (mask[y] == -1) {
-			vector<int>().swap(NODES[y]);
-			mask[y] = 1;
-		}
-	}
-	NODES[curr].swap(NODES[x.front()]);
+	//for (const auto& y : NODES[curr]) {
+	//	if (mask[y] == -1) {
+	//		vector<int>().swap(NODES[y]);
+	//		mask[y] = 1;
+	//	}
+	//}
+	//NODES[curr].swap(NODES[x.front()]);
 	while (x.size() > 1) {
 		vector<int>().swap(NODES[x.front()]);
 		mask[x.front()] = 1;
@@ -75,15 +77,15 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 	mask[curr] = -1;
 	perm[curr] = num++;
 	//?
-	vector<int> tmp;
-	tmp.reserve(deg - merged_cnt);
+	vector<int> tmp(deg - merged_cnt);
+	//tmp.reserve(deg - merged_cnt);
 	for (int j = 0, k = 0; j < NODES[curr].size(); ++j) {
 		const int& y = NODES[curr][j];
 		if (mask[y] == 0) {
 			int i = 0;
 			while (i < NODES[y].size()) {
 				if (mask[NODES[y][i]] == 1) {
-					NODES[y][i]  = curr;
+					NODES[y][i] = curr;
 					break;
 				}
 				++i;
@@ -91,7 +93,7 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 			if (i == NODES[y].size()) {
 				NODES[y].push_back(curr);
 			}
-			tmp.push_back(y);
+			tmp[k++] = y;
 		}
 	}
 	NODES[curr].swap(tmp);
@@ -104,7 +106,7 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 	char* mask = new char[n];
 	int* was = new int[n];
 	//int* degrees = static_cast<int*>(malloc(sizeof(int) * n));
-	//char* mask = static_cast<char*>(malloc(sizeof(int) * n));
+	//char* mask = static_cast<char*>(malloc(sizeof(char) * n));
 	//int* was = static_cast<int*>(malloc(sizeof(int) * n));
 	vector<vector<int>> NODES(n);
 	for (int i = 0; i < n; ++i) {
@@ -112,8 +114,8 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 		mask[i] = 0;
 		degrees[i] = NODES[i].size();
 	}
-	queue<int> indis;
 	int num = 0;
+	queue<int> indis;
 	while (num < n) {
 		//cout << "Step: " << num << '\n';
 		int x = 0, min_deg = n + 1;
@@ -123,16 +125,20 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 				min_deg = degrees[i];
 			}
 		}
-		indis.push(x);
-		NODES[x] = reach(x, NODES, mask, degrees[x]);
-		for (const auto& y : NODES[x]) {
-			if (mask[y] == 0 && degrees[x] == degrees[y]) {
+		/*indis.push(x);*/
+		vector<int> x_reach(reach(x, NODES, mask, degrees[x]));
+		for (const auto& y : x_reach) {
+			if (degrees[x] == degrees[y]) {
 				bool indistinguishable = true;
-				vector<int> y_reach = reach(y, NODES, mask, degrees[y]);
+				vector<int> y_reach(reach(y, NODES, mask, degrees[y]));
 				int i = 0, j = 0;
-				while (i < NODES[x].size() && j < y_reach.size()) {
-					if (NODES[x][i] != y_reach[j]) {
-						if (NODES[x][i] == y) {
+				while (i < x_reach.size() && j < y_reach.size()) {
+					if (x_reach[i] == y_reach[j]) {
+						i++;
+						j++;
+					}
+					else {
+						if (x_reach[i] == y) {
 							++i;
 							continue;
 						}
@@ -145,17 +151,24 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 							break;
 						}
 					}
-					i++;
-					j++;
+
 				}
 				if (indistinguishable) {
 					indis.push(y);
 				}
 			}
 		}
+		for (const auto& y : NODES[x]) {
+			if (mask[y] == -1) {
+				vector<int>().swap(NODES[y]);
+				mask[y] = 1;
+			}
+		}
+		NODES[x].swap(x_reach);
+		indis.push(x);
 		transform_(indis, NODES, mask, perm, num, degrees[x]);
-		x = indis.front();
 		indis.pop();
+		//x = indis.front();
 		for (int i = 0; i < NODES[x].size(); ++i) {
 			if (mask[NODES[x][i]] == 0) {
 				degrees[NODES[x][i]] = degree(NODES[x][i], NODES, mask, was);
