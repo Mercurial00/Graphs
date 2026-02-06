@@ -5,12 +5,12 @@
 #include <fstream>
 #include <chrono>
 #include "MinDegree2.h"
-#include "..\..\mtx_read\mmio.cpp"
+#include "..\..\mtx_read\mmio.cpp" 
 #include "..\..\mtx_read\matrix.h"
 
 using namespace std;
 int main() {
-	char filename[] = "..\\..\\..\\matrixes\\hood.mtx";
+	char filename[] = "..\\..\\..\\matrixes\\BenElechi1.mtx";
 
 	string format = "mtx";
 	spMtx<double> graph(filename, format);
@@ -22,7 +22,7 @@ int main() {
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
 	cout << "Reordering: " << fixed << setprecision(6) << elapsed.count() << '\n' << '\n' << '\n';
-	ofstream fout("..//..//output.txt");
+	ofstream fout("..//..//..//output.txt");
 	for (int i = 0; i < graph.m; ++i) {
 		fout << perm[i] << ' ';
 	}

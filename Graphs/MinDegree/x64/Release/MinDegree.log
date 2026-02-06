@@ -1,79 +1,15 @@
-﻿  main.cpp
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\mmio.cpp(450,10): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
+﻿  MinDegree2.cpp
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.h(6,15): warning C4091: static : пропускается слева от "Active_nodes", когда ни одна переменная не объявлена
+  (компиляция исходного файла "MinDegree2.cpp")
   
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\main.cpp(21,17): warning C4267: аргумент: преобразование из "size_t" в "const int"; возможна потеря данных
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(540,23): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-      C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(540,23):
-      контекст создания экземпляра шаблона (сначала самый старый)
-          C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\main.cpp(16,16):
-          выполняется компиляция ссылки на экземпляр класс шаблон функции "spMtx<double>"
-          C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(523,9):
-          во время компиляции функции-члена класс шаблон "int spMtx<double>::read_rmat_to_crs(const char *)"
-              C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(56,16):
-              см. первую ссылку на "spMtx<double>::read_rmat_to_crs" в "spMtx<double>::spMtx"
-              C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\main.cpp(16,21):
-              см. первую ссылку на "spMtx<double>::spMtx" в "main"
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(541,23): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(551,29): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(552,29): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(514,24): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-      C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(514,24):
-      контекст создания экземпляра шаблона (сначала самый старый)
-          C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(492,9):
-          во время компиляции функции-члена класс шаблон "int spMtx<double>::read_graph_to_crs(const char *)"
-              C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(53,16):
-              см. первую ссылку на "spMtx<double>::read_graph_to_crs" в "spMtx<double>::spMtx"
-              C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\main.cpp(16,21):
-              см. первую ссылку на "spMtx<double>::spMtx" в "main"
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(358,31): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-      C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(358,31):
-      контекст создания экземпляра шаблона (сначала самый старый)
-          C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(288,9):
-          во время компиляции функции-члена класс шаблон "int spMtx<double>::read_mtx_to_crs(const char *)"
-              C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(44,9):
-              см. первую ссылку на "spMtx<double>::read_mtx_to_crs" в "spMtx<double>::spMtx"
-              C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\main.cpp(16,21):
-              см. первую ссылку на "spMtx<double>::spMtx" в "main"
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(359,33): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(364,35): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(365,37): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(378,31): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(379,31): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(385,35): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(386,35): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  (компиляция исходного файла "main.cpp")
-  
-  MinDegree2.cpp
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(63,17): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(115,29): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(4,15): warning C4091: static : пропускается слева от "Active_nodes", когда ни одна переменная не объявлена
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(18,10): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(91,17): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(135,29): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(147,21): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
   Создание кода
-  478 of 491 functions (97.4%) were compiled, the rest were copied from previous compilation.
+  3 of 496 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Создание кода завершено
   MinDegree.vcxproj -> C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\x64\Release\MinDegree.exe
