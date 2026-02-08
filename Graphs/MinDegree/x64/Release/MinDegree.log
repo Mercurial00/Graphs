@@ -69,8 +69,8 @@ C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(386,35):
   (компиляция исходного файла "main.cpp")
   
   Создание кода
-  0 of 496 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  1 of 501 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Создание кода завершено
   MinDegree.vcxproj -> C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\x64\Release\MinDegree.exe

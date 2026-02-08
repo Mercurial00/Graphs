@@ -1,4 +1,4 @@
-//#include <iostream>
+#include <iostream>
 #include "MinDegree2.h"
 
 struct Active_nodes {
@@ -27,31 +27,57 @@ struct Active_nodes {
 	}
 };
 
+void merge(std::vector<int>& src, const std::vector<int>& v1, const std::vector<int>& v2, const int& degree) {
+	using namespace std;
+
+	int i = 0, j = 0;
+	for (int k = 0; k < degree; ++k) {
+		if (i >= v1.size()) {
+			src[k] = v2[j++];
+		}
+		else if (j >= v2.size()) {
+			src[k] = v1[i++];
+		}
+		else if (v1[i] <= v2[j]) {
+			src[k] = v1[i++];
+		}
+		else {
+			src[k] = v2[j++];
+		}
+	}
+}
 
 std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree) {
 	using namespace std;
 	vector<int> reach_(degree);
+	vector<int> d1, d2;
+	d1.reserve(degree);
+	d2.reserve(degree);
 	int k = 0;
 	//reach_.reserve(degree);
 	mask[x] = 2;
 	for (const auto& i : NODES[x]) {
 		if (mask[i] == 0) {
 			mask[i] = 2;
-			reach_[k++] = i;
+			d1.push_back(i);
+			++k;
 		}
 		else if (mask[i] == -1) {
 			//	if (reach_.size() == degree) break;
 			for (const auto& j : NODES[i]) {
 				if (mask[j] == 0) {
 					mask[j] = 2;
-					reach_[k++] = j;
+					d2.push_back(j);
+					++k;
 				}
 			}
 		}
 		if (k == degree) break;
 	}
 	mask[x] = 0;
-	sort(reach_.begin(), reach_.end());
+	//cout << '\n' << d2.size() << '\n';
+	sort(d2.begin(), d2.end());
+	merge(reach_, d1, d2, degree);
 	for (const int& i : reach_) {
 		mask[i] = 0;
 	}
