@@ -1,4 +1,13 @@
-﻿  main.cpp
+﻿  MinDegree2.cpp
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.h(6,15): warning C4091: static : пропускается слева от "Active_nodes", когда ни одна переменная не объявлена
+  (компиляция исходного файла "MinDegree2.cpp")
+  
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(4,15): warning C4091: static : пропускается слева от "Active_nodes", когда ни одна переменная не объявлена
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(18,10): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(91,17): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(135,29): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(147,21): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  main.cpp
 C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.h(6,15): warning C4091: static : пропускается слева от "Active_nodes", когда ни одна переменная не объявлена
   (компиляция исходного файла "main.cpp")
   
@@ -71,14 +80,5 @@ C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(385,35):
 C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\mtx_read\matrix.h(386,35): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
   (компиляция исходного файла "main.cpp")
   
-  MinDegree2.cpp
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.h(6,15): warning C4091: static : пропускается слева от "Active_nodes", когда ни одна переменная не объявлена
-  (компиляция исходного файла "MinDegree2.cpp")
-  
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(4,15): warning C4091: static : пропускается слева от "Active_nodes", когда ни одна переменная не объявлена
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(18,10): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(91,17): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(146,29): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\MinDegree\MinDegree2.cpp(164,21): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
   Создание кода...
   MinDegree.vcxproj -> C:\Users\Avanturist\Documents\LEARNING\IT-Labs\Graphs\Graphs\x64\Debug\MinDegree.exe

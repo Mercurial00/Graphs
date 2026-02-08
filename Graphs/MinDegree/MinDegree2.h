@@ -3,7 +3,7 @@
 #include <queue>
 #include <algorithm>
 
-static struct Active_nodes;
+struct Active_nodes;
 
 std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES,
 	char* mask, const int& degree);

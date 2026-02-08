@@ -1,7 +1,7 @@
 //#include <iostream>
 #include "MinDegree2.h"
 
-static struct Active_nodes {
+struct Active_nodes {
 	size_t active_sz;
 	size_t* active;
 	int* pos;
