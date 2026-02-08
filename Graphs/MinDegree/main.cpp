@@ -10,7 +10,7 @@
 
 using namespace std;
 int main() {
-	char filename[] = "..\\..\\..\\matrixes\\bone010.mtx";
+	char filename[] = "..\\..\\..\\matrixes\\hood.mtx";
 	string format = "mtx";
 	spMtx<double> graph(filename, format);
 	cout << "matrix: " << filename;
