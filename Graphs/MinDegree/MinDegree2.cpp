@@ -2,28 +2,64 @@
 #include "MinDegree2.h"
 
 struct Active_nodes {
-	size_t active_sz;
-	size_t* active;
-	int* pos;
-	Active_nodes(const size_t& size) : active_sz(size) {
-		active = new size_t[size];
-		pos = new int[size];
-		for (int i = 0; i < size; ++i) {
-			active[i] = pos[i] = i;
+	int size;
+	std::set<size_t>* active;
+	int* degrees;
+	int _min_deg;
+	//int* pos;
+	Active_nodes(const size_t& size, int* degrees) : size(size), degrees(degrees) {
+		active = new std::set<size_t>[size]();
+		_min_deg = size;
+		//pos = new int[size];
+		//for (int i = 0; i < size; ++i) {
+			//active[i] = pos[i] = i;
+		//}
+	}
+
+	void push(const size_t& node) {
+		active[degrees[node]].insert(node);
+		if (degrees[node] < _min_deg) {
+			_min_deg = degrees[node];
 		}
 	}
 
+	int min_node() {
+		return *active[_min_deg].begin();
+	}
+
 	void erase(const size_t& node) {
-		if (pos[node] != -1) {
-			int t = active[active_sz - 1];
-			std::swap(active[pos[node]], active[active_sz - 1]);
-			pos[t] = pos[node];
-			pos[node] = -1;
-			--active_sz;
+		if (degrees[node] != -1) {
+			bool is_empty = false;
+			if (degrees[node] == _min_deg && active[degrees[node]].size() == 1) {
+				is_empty = true;
+			}
+			active[degrees[node]].erase(node);
+			//for (; active[degrees[node]][i] != node; ++i);
+			if (is_empty) {
+				int i = _min_deg;
+				while (active[i].empty() && i != size) ++i;
+				/*if (i == size) {
+					return;
+				}*/
+				_min_deg = i;
+			}
 		}
 	}
+
+	int min_deg() {
+		return _min_deg;
+	}
+	//void erase(const size_t& node) {
+	//	if (pos[node] != -1) {
+	//		int t = active[active_sz - 1];
+	//		std::swap(active[pos[node]], active[active_sz - 1]);
+	//		pos[t] = pos[node];
+	//		pos[node] = -1;
+	//		--active_sz;
+	//	}
+	//}
 	~Active_nodes() {
-		delete[] active, pos;
+		delete[] active;
 	}
 };
 
@@ -94,6 +130,7 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 		mask[x.front()] = 1;
 		perm[x.front()] = num++;
 		act.erase(x.front());
+		act.degrees[x.front()] = -1;
 		x.pop();
 	}
 	act.erase(curr);
@@ -118,6 +155,7 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 			tmp[k++] = y;
 		}
 	}
+	act.degrees[curr] = -1;
 	NODES[curr].swap(tmp);
 }
 
@@ -128,26 +166,28 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 	char* mask = new char[n];
 	int* was = new int[n];
 	vector<vector<int>> NODES(n);
-	Active_nodes act(n);
+	Active_nodes act(n, degrees);
 	for (int i = 0; i < n; ++i) {
 		NODES[i].insert(NODES[i].end(), Col + Rst[i], Col + Rst[i + 1]);
 		mask[i] = 0;
 		degrees[i] = NODES[i].size();
+		act.push(i);
 	}
 	int num = 0;
 	queue<int> indis;
 	while (num < n) {
 		//cout << "Step: " << num << '\n';
-		int x = 0, min_deg = n + 1;
+		int min_deg = act.min_deg();
+		int x = act.min_node();
 
 		//int j = 0;
-		for (int i = 0; i < act.active_sz; ++i) {
-			//++j;
-			if (degrees[act.active[i]] < min_deg) {
-				x = act.active[i];
-				min_deg = degrees[act.active[i]];
-			}
-		}
+		//for (int i = 0; i < act.active_sz; ++i) {
+		//	//++j;
+		//	if (degrees[act.active[i]] < min_deg) {
+		//		x = act.active[i];
+		//		min_deg = degrees[act.active[i]];
+		//	}
+		//}
 		//std::cout << '\n' << j << '\n';
 		/*indis.push(x);*/
 		vector<int> x_reach(reach(x, NODES, mask, degrees[x]));
@@ -185,6 +225,7 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 		for (const auto& y : NODES[x]) {
 			if (mask[y] == -1) {
 				act.erase(y);
+				degrees[y] = -1;
 				vector<int>().swap(NODES[y]);
 				mask[y] = 1;
 			}
@@ -196,7 +237,9 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 		//x = indis.front();
 		for (int i = 0; i < NODES[x].size(); ++i) {
 			if (mask[NODES[x][i]] == 0) {
+				act.erase(NODES[x][i]);
 				degrees[NODES[x][i]] = degree(NODES[x][i], NODES, mask, was);
+				act.push(NODES[x][i]);
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <set>
 
 struct Active_nodes;
 
