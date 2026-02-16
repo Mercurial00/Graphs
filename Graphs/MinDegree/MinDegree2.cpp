@@ -2,7 +2,7 @@
 #include "MinDegree2.h"
 
 struct Active_nodes {
-	int size;
+	size_t size;
 	std::set<size_t>* active;
 	int* degrees;
 	int _min_deg;
@@ -19,15 +19,11 @@ struct Active_nodes {
 		}
 	}
 
-	int min_node() {
-		return *active[_min_deg].begin();
-	}
-
 	void erase(const size_t& node) {
 		if (degrees[node] != -1) {
 			if (degrees[node] == _min_deg && active[degrees[node]].size() == 1) {
 				int i = _min_deg + 1;
-				while (active[i].empty() && i != size) ++i;
+				while (i != size && active[i].empty()) ++i;
 				_min_deg = i;
 			}
 			active[degrees[node]].erase(node);
@@ -36,6 +32,10 @@ struct Active_nodes {
 
 	int min_deg() {
 		return _min_deg;
+	}
+
+	int min_node() {
+		return *active[_min_deg].begin();
 	}
 
 	~Active_nodes() {
