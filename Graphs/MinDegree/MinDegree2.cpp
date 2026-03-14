@@ -75,6 +75,42 @@ std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES,
 	return reach_;
 }
 
+bool reach_cmp(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree, const std::unordered_set<int>& pattern, int was[]) {
+	using namespace std;
+	int k = 0;
+	bool is_equal = true;
+	mask[x] = 2;
+	for (const auto& i : NODES[x]) {
+		if (!is_equal) break;
+
+		if (mask[i] == 0) {
+			mask[i] = 2;
+			was[k++] = i;
+			if (pattern.find(i) == pattern.end()) is_equal = false;
+		}
+		else if (mask[i] == -1) {
+			for (const auto& j : NODES[i]) {
+				if (mask[j] == 0) {
+					mask[j] = 2;
+					was[k++] = j;
+					if (pattern.find(j) == pattern.end()) {
+						is_equal = false;
+						break;
+					}
+				}
+			}
+		}
+		if (k == degree) break;
+	}
+	mask[x] = 0;
+
+	for (int i = 0; i < k; ++i) {
+		mask[was[i]] = 0;
+	}
+
+	return is_equal;
+}
+
 int degree(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, int was[]) {
 	int deg = 0;
 	mask[x] = 2;
@@ -166,32 +202,13 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 		int x = act.min_node();
 
 		vector<int> x_reach(reach(x, NODES, mask, degrees[x]));
+
+		unordered_set<int> pattern(x_reach.begin(), x_reach.end());
+		pattern.insert(x);
+
 		for (const auto& y : x_reach) {
 			if (degrees[x] == degrees[y]) {
-				bool indistinguishable = true;
-				vector<int> y_reach(reach(y, NODES, mask, degrees[y]));
-				size_t i = 0, j = 0;
-				while (i < x_reach.size() && j < y_reach.size()) {
-					if (x_reach[i] == y_reach[j]) {
-						i++;
-						j++;
-					}
-					else {
-						if (x_reach[i] == y) {
-							++i;
-							continue;
-						}
-						else if (y_reach[j] == x) {
-							++j;
-							continue;
-						}
-						else {
-							indistinguishable = false;
-							break;
-						}
-					}
-
-				}
+				bool indistinguishable = reach_cmp(y, NODES, mask, degrees[y], pattern, was);
 				if (indistinguishable) {
 					indis.push(y);
 				}

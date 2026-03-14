@@ -3,6 +3,7 @@
 #include <queue>
 #include <algorithm>
 #include <set>
+#include <unordered_set>
 
 struct Active_nodes;
 
