@@ -6,6 +6,7 @@
 *
 */
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 #ifndef MM_IO_H
 #define MM_IO_H
 

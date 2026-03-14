@@ -22,7 +22,7 @@ struct Active_nodes {
 	void erase(const size_t& node) {
 		if (degrees[node] != -1) {
 			if (degrees[node] == _min_deg && active[degrees[node]].size() == 1) {
-				int i = _min_deg + 1;
+				size_t i = _min_deg + 1;
 				while (i != size && active[i].empty()) ++i;
 				_min_deg = i;
 			}
@@ -30,11 +30,11 @@ struct Active_nodes {
 		}
 	}
 
-	int min_deg() {
+	int min_deg() const {
 		return _min_deg;
 	}
 
-	int min_node() {
+	size_t min_node() const {
 		return *active[_min_deg].begin();
 	}
 
@@ -107,7 +107,7 @@ int degree(const int& x, const std::vector<std::vector<int>>& NODES, char* mask,
 void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* mask, int* perm, int& num, const int& deg, Active_nodes& act) {
 	using namespace std;
 	int curr = x.back();
-	int merged_cnt = x.size() - 1;
+	size_t merged_cnt = x.size() - 1;
 	while (x.size() > 1) {
 		vector<int>().swap(NODES[x.front()]);
 		mask[x.front()] = 1;
@@ -122,10 +122,10 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 
 	vector<int> tmp(deg - merged_cnt);
 	//tmp.reserve(deg - merged_cnt);
-	for (int j = 0, k = 0; j < NODES[curr].size(); ++j) {
+	for (size_t j = 0, k = 0; j < NODES[curr].size(); ++j) {
 		const int& y = NODES[curr][j];
 		if (mask[y] == 0) {
-			int i = 0;
+			size_t i = 0;
 			while (i < NODES[y].size()) {
 				if (mask[NODES[y][i]] == 1) {
 					NODES[y][i] = curr;
@@ -163,8 +163,6 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 
 	while (num < n) {
 		//cout << "Step: " << num << '\n';
-
-		int min_deg = act.min_deg();
 		int x = act.min_node();
 
 		vector<int> x_reach(reach(x, NODES, mask, degrees[x]));
@@ -172,7 +170,7 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 			if (degrees[x] == degrees[y]) {
 				bool indistinguishable = true;
 				vector<int> y_reach(reach(y, NODES, mask, degrees[y]));
-				int i = 0, j = 0;
+				size_t i = 0, j = 0;
 				while (i < x_reach.size() && j < y_reach.size()) {
 					if (x_reach[i] == y_reach[j]) {
 						i++;
@@ -215,7 +213,7 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 
 		indis.pop();
 
-		for (int i = 0; i < NODES[x].size(); ++i) {
+		for (size_t i = 0; i < NODES[x].size(); ++i) {
 			if (mask[NODES[x][i]] == 0) {
 				act.erase(NODES[x][i]);
 				degrees[NODES[x][i]] = degree(NODES[x][i], NODES, mask, was);
