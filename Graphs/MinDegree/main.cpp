@@ -12,7 +12,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
 	const char* filename;
 	if (argc < 2)
-		filename = "../../../matrixes/Emilia_923.mtx";
+		filename = "../../../matrixes/ecology2.mtx";
 	else {
 		filename = argv[1];
 	}
@@ -36,10 +36,10 @@ int main(int argc, char* argv[]) {
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
 	cout << "Reordering: " << fixed << setprecision(6) << elapsed.count() << '\n' << '\n' << '\n';
-	//ofstream fout("../../../output.txt");
-	//for (int i = 0; i < graph.m; ++i) {
-	//	fout << perm[i] << ' ';
-	//}
-	//fout.close();
+	ofstream fout("../../../output.txt");
+	for (int i = 0; i < graph.m; ++i) {
+		fout << perm[i] << ' ';
+	}
+	fout.close();
 	delete[] perm;
 }

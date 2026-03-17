@@ -157,12 +157,14 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 	perm[curr] = num++;
 
 	vector<int> tmp(deg - merged_cnt);
-	//tmp.reserve(deg - merged_cnt);
 	for (size_t j = 0, k = 0; j < NODES[curr].size(); ++j) {
 		const int& y = NODES[curr][j];
 		if (mask[y] == 0) {
 			size_t i = 0;
 			while (i < NODES[y].size()) {
+				if (NODES[y][i] == curr) {
+					break;
+				}
 				if (mask[NODES[y][i]] == 1) {
 					NODES[y][i] = curr;
 					break;
@@ -242,3 +244,4 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 	delete[] mask;
 	delete[] degrees;
 }
+
