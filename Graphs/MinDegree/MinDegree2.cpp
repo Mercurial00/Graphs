@@ -3,30 +3,16 @@
 
 struct Active_nodes {
 	size_t size;
-	std::set<size_t>* active;
+	std::vector<std::vector<size_t>> active;
 	int* degrees;
 	int _min_deg;
 
-	Active_nodes(const size_t& size, int* degrees) : size(size), degrees(degrees) {
-		active = new std::set<size_t>[size]();
-		_min_deg = size;
-	}
+	Active_nodes(const size_t& size, int* degrees) : size(size), active(size), degrees(degrees), _min_deg(size) {}
 
 	void push(const size_t& node) {
-		active[degrees[node]].insert(node);
+		active[degrees[node]].push_back(node);
 		if (degrees[node] < _min_deg) {
 			_min_deg = degrees[node];
-		}
-	}
-
-	void erase(const size_t& node) {
-		if (degrees[node] != -1) {
-			if (degrees[node] == _min_deg && active[degrees[node]].size() == 1) {
-				size_t i = _min_deg + 1;
-				while (i != size && active[i].empty()) ++i;
-				_min_deg = i;
-			}
-			active[degrees[node]].erase(node);
 		}
 	}
 
@@ -34,20 +20,28 @@ struct Active_nodes {
 		return _min_deg;
 	}
 
-	size_t min_node() const {
-		return *active[_min_deg].begin();
+	size_t min_node() {
+		while (true) {
+			while (active[_min_deg].empty()) ++_min_deg;
+			if (!active[_min_deg].empty() && degrees[active[_min_deg].back()] != _min_deg) {
+				active[_min_deg].pop_back();
+			}
+			else if (!active[_min_deg].empty() && degrees[active[_min_deg].back()] == _min_deg) {
+				size_t t = active[_min_deg].back();
+				active[_min_deg].pop_back();
+				return t;
+			}
+		}
 	}
 
-	~Active_nodes() {
-		delete[] active;
-	}
+	~Active_nodes() = default;
 };
 
 
 std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree) {
 	using namespace std;
-	vector<int> reach_(degree);
 	int k = 0;
+	vector<int> reach_(degree);
 	//reach_.reserve(degree);
 	mask[x] = 2;
 	for (const auto& i : NODES[x]) {
@@ -66,7 +60,6 @@ std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES,
 		if (k == degree) break;
 	}
 	mask[x] = 0;
-	sort(reach_.begin(), reach_.end());
 
 	for (const int& i : reach_) {
 		mask[i] = 0;
@@ -75,40 +68,33 @@ std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES,
 	return reach_;
 }
 
-bool reach_cmp(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree, const std::unordered_set<int>& pattern, int was[]) {
+bool reach_cmp(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree, int was[]) {
 	using namespace std;
 	int k = 0;
-	bool is_equal = true;
+	//bool is_equal = true;
 	mask[x] = 2;
 	for (const auto& i : NODES[x]) {
-		if (!is_equal) break;
-
-		if (mask[i] == 0) {
+		if (mask[i] == 3) {
 			mask[i] = 2;
 			was[k++] = i;
-			if (pattern.find(i) == pattern.end()) is_equal = false;
 		}
 		else if (mask[i] == -1) {
 			for (const auto& j : NODES[i]) {
-				if (mask[j] == 0) {
+				if (mask[j] == 3) {
 					mask[j] = 2;
 					was[k++] = j;
-					if (pattern.find(j) == pattern.end()) {
-						is_equal = false;
-						break;
-					}
 				}
 			}
 		}
 		if (k == degree) break;
 	}
-	mask[x] = 0;
+	mask[x] = 3;
 
 	for (int i = 0; i < k; ++i) {
-		mask[was[i]] = 0;
+		mask[was[i]] = 3;
 	}
 
-	return is_equal;
+	return k == degree;
 }
 
 int degree(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, int was[]) {
@@ -148,11 +134,11 @@ void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* 
 		vector<int>().swap(NODES[x.front()]);
 		mask[x.front()] = 1;
 		perm[x.front()] = num++;
-		act.erase(x.front());
+		//act.erase(x.front());
 		act.degrees[x.front()] = -1;
 		x.pop();
 	}
-	act.erase(curr);
+	//act.erase(curr);
 	mask[curr] = -1;
 	perm[curr] = num++;
 
@@ -200,26 +186,39 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 	queue<int> indis;
 
 	while (num < n) {
-		//cout << "Step: " << num << '\n';
 		int x = act.min_node();
 
+		// нахождение достижимого множества текущей вершины
 		vector<int> x_reach(reach(x, NODES, mask, degrees[x]));
 
-		unordered_set<int> pattern(x_reach.begin(), x_reach.end());
-		pattern.insert(x);
+		// временная пометка для сравнений
+		for (const auto& node : x_reach) {
+			mask[node] = 3;
+		}
+		mask[x] = 3;
 
-		for (const auto& y : x_reach) {
+		// поиск неразличимых вершин
+		for (const auto& y : x_reach) { 
 			if (degrees[x] == degrees[y]) {
-				bool indistinguishable = reach_cmp(y, NODES, mask, degrees[y], pattern, was);
+
+				bool indistinguishable = reach_cmp(y, NODES, mask, degrees[y], was);
+
 				if (indistinguishable) {
 					indis.push(y);
 				}
 			}
 		}
 
-		for (const auto& y : NODES[x]) {
+		// Возвращение к настоящим пометкам
+		for (const auto& node : x_reach) {
+			mask[node] = 0; 
+		}
+		mask[x] = 0;
+
+		// слияние исключённых вершин с текущей
+		for (const auto& y : NODES[x]) {	
 			if (mask[y] == -1) {
-				act.erase(y);
+				//act.erase(y);
 				degrees[y] = -1;
 				vector<int>().swap(NODES[y]);
 				mask[y] = 1;
@@ -230,11 +229,12 @@ void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
 
 		transform_(indis, NODES, mask, perm, num, degrees[x], act);
 
-		indis.pop();
+		indis.pop(); // полная очистка очереди
 
-		for (size_t i = 0; i < NODES[x].size(); ++i) {
+		// обновление степеней
+		for (size_t i = 0; i < NODES[x].size(); ++i) { 
 			if (mask[NODES[x][i]] == 0) {
-				act.erase(NODES[x][i]);
+				//act.erase(NODES[x][i]);
 				degrees[NODES[x][i]] = degree(NODES[x][i], NODES, mask, was);
 				act.push(NODES[x][i]);
 			}

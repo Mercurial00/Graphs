@@ -3,12 +3,15 @@
 #include <queue>
 #include <algorithm>
 #include <set>
-#include <unordered_set>
 
 struct Active_nodes;
 
 std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES,
 	char* mask, const int& degree);
+
+bool reach_cmp(const int& x, const std::vector<std::vector<int>>& NODES,
+	char* mask, const int& degree, int was[]);
+
 
 void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES,
 	char* mask, int* perm, int& num, const int& deg, Active_nodes& act);
