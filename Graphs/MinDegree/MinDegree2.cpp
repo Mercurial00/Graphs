@@ -2,12 +2,11 @@
 #include "MinDegree2.h"
 
 struct Active_nodes {
-	size_t size;
 	std::vector<std::vector<size_t>> active;
 	int* degrees;
 	int _min_deg;
 
-	Active_nodes(const size_t& size, int* degrees) : size(size), active(size), degrees(degrees), _min_deg(size) {}
+	Active_nodes(const int& size, int* degrees) : active(size), degrees(degrees), _min_deg(size) {}
 
 	void push(const size_t& node) {
 		active[degrees[node]].push_back(node);
@@ -16,17 +15,13 @@ struct Active_nodes {
 		}
 	}
 
-	int min_deg() const {
-		return _min_deg;
-	}
-
 	size_t min_node() {
 		while (true) {
 			while (active[_min_deg].empty()) ++_min_deg;
-			if (!active[_min_deg].empty() && degrees[active[_min_deg].back()] != _min_deg) {
+			while (!active[_min_deg].empty() && degrees[active[_min_deg].back()] != _min_deg) {
 				active[_min_deg].pop_back();
 			}
-			else if (!active[_min_deg].empty() && degrees[active[_min_deg].back()] == _min_deg) {
+			if (!active[_min_deg].empty() && degrees[active[_min_deg].back()] == _min_deg) {
 				size_t t = active[_min_deg].back();
 				active[_min_deg].pop_back();
 				return t;
@@ -126,7 +121,8 @@ int degree(const int& x, const std::vector<std::vector<int>>& NODES, char* mask,
 	return deg;
 }
 
-void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* mask, int* perm, int& num, const int& deg, Active_nodes& act) {
+void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* mask,
+				int* perm, int& num, const int& deg, Active_nodes& act) {
 	using namespace std;
 	int curr = x.back();
 	size_t merged_cnt = x.size() - 1;
