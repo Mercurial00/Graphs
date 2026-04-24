@@ -12,7 +12,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
 	const char* filename;
 	if (argc < 2)
-		filename = "../../../matrixes/G3_circuit.mtx";
+		filename = "../../../matrixes/bundle_adj.mtx";
 	else {
 		filename = argv[1];
 	}
