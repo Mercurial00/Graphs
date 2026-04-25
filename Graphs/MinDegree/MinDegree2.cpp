@@ -1,8 +1,13 @@
 //#include <iostream>
 #include "MinDegree2.h"
+#include <iostream>
+//#include <iomanip>
 
 #define EMPTY (-1)
 #define FLIP(x) (-(x) - 2)
+static int COMPRESS_CNT = 0;
+//static uint64_t SIMILAR_VERTEXES_VISIT_CNT = 0;
+//static uint64_t DIFFERENT_VERTEXES_VISIT_CNT = 0;
 
 //std::vector<int> debug_nodes;
 
@@ -15,7 +20,7 @@ struct Active_nodes {
 
 	void push(const size_t& node) {
 		active[degrees[node]].push_back(node);
-		if (degrees[node] < _min_deg && degrees[node] >= 0) {
+		if (degrees[node] < _min_deg) {
 			_min_deg = degrees[node];
 		}
 	}
@@ -87,7 +92,7 @@ void reach(const int& x, int pfree, int newElem, int* ws, int* pe, int* len, int
 		if (pe[id] <= EMPTY) 
 			continue;
 		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
-			if (degrees[ws[j]] > EMPTY && mask[ws[j]] == 0) {
+			if (mask[ws[j]] == 0) {
 				mask[ws[j]] = 1;
 				//reach_[k++] = ws[j];
 				ws[pfree++] = ws[j];
@@ -95,18 +100,26 @@ void reach(const int& x, int pfree, int newElem, int* ws, int* pe, int* len, int
 				len[newElem]++;
 				//reach_.push_back(ws[j]);
 				//k++;
+			//	DIFFERENT_VERTEXES_VISIT_CNT++;
 			}
+			//else {
+			//	SIMILAR_VERTEXES_VISIT_CNT++;
+			//}
 		}
 	}
 	for (; p < pe[x] + len[x]; ++p) {
-		if (degrees[ws[p]] > EMPTY && mask[ws[p]] == 0) {
+		if (mask[ws[p]] == 0) {
 			mask[ws[p]] = 1;
 			ws[pfree++] = ws[p];
 			k++;
 			len[newElem]++;
+			//DIFFERENT_VERTEXES_VISIT_CNT++;
 			//reach_.push_back(ws[p]);
 			//k++;
 		}
+		//else {
+		//	SIMILAR_VERTEXES_VISIT_CNT++;
+		//}
 	}
 
 	int pos = pfree - len[newElem];
@@ -128,10 +141,14 @@ bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent,
 		if (pe[id] <= EMPTY)
 			continue;
 		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
-			if (degrees[ws[j]] > EMPTY && mask[ws[j]] == 1) {
+			if (mask[ws[j]] == 1) {
 				mask[ws[j]] = 0;
 				was[k++] = ws[j];
+			//	DIFFERENT_VERTEXES_VISIT_CNT++;
 			}
+			//else {
+			//	SIMILAR_VERTEXES_VISIT_CNT++;
+			//}
 		}
 		if (k == degree) {
 			mask[x] = 1;
@@ -144,10 +161,14 @@ bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent,
 		}
 	}
 	for (int p = pe[x] + elen[x]; p < pe[x] + len[x]; ++p) {
-		if (degrees[ws[p]] > EMPTY && mask[ws[p]] == 1) {
+		if (mask[ws[p]] == 1) {
 			mask[ws[p]] = 0;
 			was[k++] = ws[p];
+		//	DIFFERENT_VERTEXES_VISIT_CNT++;
 		}
+		//else {
+		//	SIMILAR_VERTEXES_VISIT_CNT++;
+		//}
 		if (k == degree) break;
 	}
 	mask[x] = 1;
@@ -174,19 +195,27 @@ int degree(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, int
 		if (pe[id] <= EMPTY)
 			continue;
 		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
-			if (degrees[ws[j]] > EMPTY && mask[ws[j]] == 0) {
+			if (mask[ws[j]] == 0) {
 				mask[ws[j]] = 1;
 				was[k++] = ws[j];
 				deg += spn_sz[ws[j]];
+			//	DIFFERENT_VERTEXES_VISIT_CNT++;
 			}
+			//else {
+			//	SIMILAR_VERTEXES_VISIT_CNT++;
+			//}
 		}
 	}
 	for (; p < pe[x] + len[x]; ++p) {
-		if (degrees[ws[p]] > EMPTY && mask[ws[p]] == 0) {
+		if (mask[ws[p]] == 0) {
 			mask[ws[p]] = 1;
 			was[k++] = ws[p];
 			deg += spn_sz[ws[p]];
+		//	DIFFERENT_VERTEXES_VISIT_CNT++;
 		}
+		//else {
+		//	SIMILAR_VERTEXES_VISIT_CNT++;
+		//}
 	}
 
 	for (int i = 0; i < k; ++i) {
@@ -264,10 +293,12 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 
 // preparation
 void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
-	const int wsSize = (int)(2.5 * Rst[n]);
+	const int wsSize = (int)(2 * Rst[n]);
+	//const int wsSize = (int)(Rst[n] + 2 * n);
+
 	int* ws = new int[wsSize];
 	int* pe = new int[2 * n + 1];
-	int* len = new int[2 * n] {};
+	int* len = new int[2 * n];
 	int* elen = new int[2 * n] {};
 	int* spn_sz = new int[2 * n];
 	int* parent = new int[2 * n];
@@ -305,6 +336,33 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 	delete[] degrees;
 }
 
+inline void prepareVertex(int x, int* pe, int* ws, int* len, int* elen, int* parent,
+	int* degrees, char* mask, int* perm) {
+	int length = len[x];
+	int p = pe[x];
+	for (int p = pe[x]; p < pe[x] + length; ++p) {
+		int curr = ws[p];
+		for (int j = pe[curr]; j < pe[curr] + elen[curr];) {
+			if (pe[ws[j]] <= EMPTY) {
+				std::swap(ws[j], ws[pe[curr] + elen[curr] - 1]);
+				--elen[curr];
+			}
+			else {
+				++j;
+			}
+		}
+		for (int j = pe[curr] + elen[curr]; j < pe[curr] + len[curr];) {
+			if (pe[ws[j]] <= EMPTY) {
+				std::swap(ws[j], ws[pe[curr] + len[curr] - 1]);
+				--len[curr];
+			}
+			else {
+				++j;
+			}
+		}
+	}
+}
+
 void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 	int* was, char* mask, int* degrees, Active_nodes& act, int* perm) {
 	using namespace std;
@@ -316,7 +374,7 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 	while (num < n) {
 		int x = act.min_node();
 		perm[x] = num++;
-
+		prepareVertex(x, pe, ws, len, elen, parent, degrees, mask, perm);
 		//debug_nodes.push_back(x);
 
 		int newElem = vertexCnt++;
@@ -327,6 +385,8 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 			if (pfree + degrees[x] > wsSize) {
 					throw "ERROR. Not enough space in ws";
 			}
+			COMPRESS_CNT++;
+			std::cout << "compression function was called. Total: " << COMPRESS_CNT << '\n';
 		}
 		reach(x, pfree, newElem, ws, pe, len, elen, parent, mask, degrees, degrees[x]);
 		// временная пометка для сравнений
@@ -376,5 +436,9 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 			act.push(curr);
 		}
 	}
+	//cout << "Total different vertexes visits count: " << DIFFERENT_VERTEXES_VISIT_CNT << '\n';
+	//cout << "Total similar vertexes visits count: " << SIMILAR_VERTEXES_VISIT_CNT << '\n';
+	//cout << "Percentage of empty visits: " << fixed << setprecision(2)
+	//	<< (double)SIMILAR_VERTEXES_VISIT_CNT / (SIMILAR_VERTEXES_VISIT_CNT + DIFFERENT_VERTEXES_VISIT_CNT) * 100 << "%\n";
 }
 
