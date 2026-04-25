@@ -56,26 +56,43 @@ int compress(int* ws, int* pe, int* elen, int* len, int& pfree, int nodesCnt) {
 	return newPfree;
 }
 
-std::vector<int> reach(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, char* mask, int* degrees, const int deg) {
+inline int compressPath(int x, int* parent) {
+	int r = x;
+	while (parent[r] != r) {
+		r = parent[r];
+	}
+	while (parent[x] != x) {
+		int p = parent[x];
+		parent[x] = r;
+		x = p;
+	}
+	return r;
+}
+
+void reach(const int& x, int pfree, int newElem, int* ws, int* pe, int* len, int* elen, int* parent, char* mask, int* degrees, const int deg) {
 	using namespace std;
 	int k = 0;
-	vector<int> reach_(deg);
+	//vector<int> reach_(deg);
 	//reach_.reserve(deg);
 
 	//mask[x] = 1; todo: mask x = 1 везде на время исключения
-
+	
 	int p = pe[x];
+	len[newElem] = 0;
 	for (; p < pe[x] + elen[x]; ++p) {
 		int id = ws[p];
 		while (parent[id] != id) {
-			id = parent[id];
+			id = compressPath(id, parent);
 		}
 		if (pe[id] <= EMPTY) 
 			continue;
 		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
 			if (degrees[ws[j]] > EMPTY && mask[ws[j]] == 0) {
 				mask[ws[j]] = 1;
-				reach_[k++] = ws[j];
+				//reach_[k++] = ws[j];
+				ws[pfree++] = ws[j];
+				k++;
+				len[newElem]++;
 				//reach_.push_back(ws[j]);
 				//k++;
 			}
@@ -84,17 +101,19 @@ std::vector<int> reach(const int& x, int* ws, int* pe, int* len, int* elen, int*
 	for (; p < pe[x] + len[x]; ++p) {
 		if (degrees[ws[p]] > EMPTY && mask[ws[p]] == 0) {
 			mask[ws[p]] = 1;
-			reach_[k++] = ws[p];
+			ws[pfree++] = ws[p];
+			k++;
+			len[newElem]++;
 			//reach_.push_back(ws[p]);
 			//k++;
 		}
 	}
 
+	int pos = pfree - len[newElem];
 	for (int i = 0; i < k; ++i) {
-		mask[reach_[i]] = 0;
+		mask[ws[pos + i]] = 0;
 	}
-	reach_.resize(k);
-	return reach_;
+	return;
 }
 
 bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, char* mask, int* degrees, const int& degree, int was[]) {
@@ -179,30 +198,30 @@ int degree(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, int
 
 
 void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
-	int* was, int* degrees, char* mask, int* perm, int& pfree, int oldVar, int newElem, int& num, const int wsSize, std::vector<int>& reach_x) {
+	int* was, int* degrees, char* mask, int* perm, int& pfree, int oldVar, int newElem, int& num, const int wsSize) {
 	
 	parent[newElem] = newElem;
 	pe[newElem] = pfree;
 	spn_sz[newElem] = spn_sz[oldVar];
-	len[newElem] = 0;
 	elen[newElem] = 0;
-	for (auto& node : reach_x) {
-		if (mask[node] != 2) {
-			ws[pfree++] = node;
-			++len[newElem];
-		}
-		else {
-			pe[node] = EMPTY;
-			parent[node] = newElem;
+	for (int i = pfree; i < pfree + len[newElem]; ++i) {
+		if (mask[ws[i]] == 2) {
+			pe[ws[i]] = EMPTY;
+			parent[ws[i]] = newElem;
 			//spn_sz[newElem] += spn_sz[node];
-			spn_sz[node] = 0;
-			elen[node] = 0;
-			degrees[node] = EMPTY;
-			perm[node] = num++;
+			spn_sz[ws[i]] = 0;
+			elen[ws[i]] = 0;
+			degrees[ws[i]] = EMPTY;
+			perm[ws[i]] = num++;
+			mask[ws[i]] = 0;
+			std::swap(ws[i], ws[pfree + len[newElem] - 1]);
+			--len[newElem];
+			--i;
+			continue;
 		}
-		mask[node] = 0;
+		mask[ws[i]] = 0;
 	}
-
+	pfree += len[newElem];
 	int length = len[newElem];
 	for (int i = pe[newElem]; i < pe[newElem] + length; ++i) {
 		bool found = false;
@@ -210,8 +229,6 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 		for (int j = pe[curr]; j < pe[curr] + elen[curr];) {
 			if (pe[ws[j]] <= EMPTY) {
 				std::swap(ws[j], ws[pe[curr] + elen[curr] - 1]);
-				//std::swap(ws[pe[curr] + elen[curr] - 1], ws[pe[curr] + len[curr] - 1]);
-				//--len[curr];
 				--elen[curr];
 			}
 			else {
@@ -231,11 +248,6 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 				std::swap(ws[j], ws[pe[curr] + len[curr] - 1]);
 				--len[curr];
 			}
-			//else if (pe[ws[j]] < EMPTY) {
-			//	std::swap(ws[j], ws[pe[curr] + elen[curr]]);
-			//	++elen[curr];
-			//	++j;
-			//}
 			else if (pe[ws[j]] <= EMPTY) {
 				std::swap(ws[j], ws[pe[curr] + len[curr] - 1]);
 				--len[curr];
@@ -252,10 +264,10 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 
 // preparation
 void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
-	const int wsSize = (int)(2 * Rst[n]);
+	const int wsSize = (int)(2.5 * Rst[n]);
 	int* ws = new int[wsSize];
 	int* pe = new int[2 * n + 1];
-	int* len = new int[2 * n];
+	int* len = new int[2 * n] {};
 	int* elen = new int[2 * n] {};
 	int* spn_sz = new int[2 * n];
 	int* parent = new int[2 * n];
@@ -300,7 +312,6 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 	int pfree = pe[n];
 	int vertexCnt = n;
 	int num = 0;
-	//queue<int> indis;
 
 	while (num < n) {
 		int x = act.min_node();
@@ -311,19 +322,24 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		int newElem = vertexCnt++;
 		// нахождение достижимого множества текущей вершины
 		mask[x] = 1;
-		vector<int> x_reach(reach(x, ws, pe, len, elen, parent, mask, degrees, degrees[x]));
-
-		// временная пометка для сравнений
-		for (const auto& node : x_reach) {
-			mask[node] = 1;
+		if (pfree + degrees[x] > wsSize) {
+			pfree = compress(ws, pe, elen, len, pfree, vertexCnt);
+			if (pfree + degrees[x] > wsSize) {
+					throw "ERROR. Not enough space in ws";
+			}
 		}
-
+		reach(x, pfree, newElem, ws, pe, len, elen, parent, mask, degrees, degrees[x]);
+		// временная пометка для сравнений
+		for (int i = 0; i < len[newElem]; ++i) {
+			mask[ws[pfree + i]] = 1;
+		}
 		vector<int> ind;
 		// поиск неразличимых вершин
-		for (const auto& y : x_reach) {
+		for (int i = 0; i < len[newElem]; ++i) {
+			int y = ws[pfree + i];
 			if (degrees[x] == degrees[y]) {
 
-				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, x_reach.size(), was);
+				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, len[newElem], was);
 
 				if (indistinguishable) {
 					//indis.push(y);
@@ -350,20 +366,7 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 			degrees[ws[i]] = EMPTY;
 		}
 
-		//indis.push(x);
-
-		//transform_(indis, NODES, mask, perm, num, degrees[x], act);
-
-		if (pfree + x_reach.size() > wsSize) {
-			pfree = compress(ws, pe, elen, len, pfree, vertexCnt);
-			if (pfree + x_reach.size() > wsSize) {
-				throw "ERROR. Not enough space in ws";
-			}
-		}
-
-		transform(pe, ws, len, elen, spn_sz, parent, was, degrees, mask, perm, pfree, x, newElem, num, wsSize, x_reach);
-
-		//indis.pop(); // полная очистка очереди
+		transform(pe, ws, len, elen, spn_sz, parent, was, degrees, mask, perm, pfree, x, newElem, num, wsSize);
 
 		// обновление степеней
 		int p = pe[newElem];

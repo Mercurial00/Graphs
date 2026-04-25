@@ -6,8 +6,8 @@
 
 struct Active_nodes;
 
-std::vector<int> reach(const int& x, int* ws, int* pe, int* len, int* elen, int* parent,
-	char* mask, int* degrees, const int degree);
+void reach(const int& x, int pfree, int newElem, int* ws, int* pe, int* len,
+	int* elen, int* parent, char* mask, int* degrees, const int deg);
 std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES,
 	char* mask, const int& degree);
 
