@@ -42,7 +42,7 @@ struct Active_nodes {
 	~Active_nodes() = default;
 };
 
-int compress(int* ws, int* pe, int* elen, int* len, int& pfree, int nodesCnt) {
+int compress(int* ws, int* pe, const int* elen, const int* len, const int& pfree, const int nodesCnt) {
 	int newPfree = 0;
 
 	for (int i = 0; i < nodesCnt; ++i) {
@@ -386,7 +386,7 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 					throw "ERROR. Not enough space in ws";
 			}
 			COMPRESS_CNT++;
-			std::cout << "compression function was called. Total: " << COMPRESS_CNT << '\n';
+			std::cout << "compression function was called on step " << num << ". Total: " << COMPRESS_CNT << '\n';
 		}
 		reach(x, pfree, newElem, ws, pe, len, elen, parent, mask, degrees, degrees[x]);
 		// временная пометка для сравнений
