@@ -336,8 +336,7 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 	delete[] degrees;
 }
 
-inline void prepareVertex(int x, int* pe, int* ws, int* len, int* elen, int* parent,
-	int* degrees, char* mask, int* perm) {
+inline void prepareVertex(int x, int* pe, int* ws, int* len, int* elen, int* parent) {
 	int length = len[x];
 	int p = pe[x];
 	for (int p = pe[x]; p < pe[x] + length; ++p) {
@@ -374,13 +373,13 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 	while (num < n) {
 		int x = act.min_node();
 		perm[x] = num++;
-		prepareVertex(x, pe, ws, len, elen, parent, degrees, mask, perm);
+		prepareVertex(x, pe, ws, len, elen, parent);
 		//debug_nodes.push_back(x);
 
 		int newElem = vertexCnt++;
 		// нахождение достижимого множества текущей вершины
 		mask[x] = 1;
-		if (pfree + degrees[x] > wsSize) {
+		if (pfree + 2 * degrees[x] > wsSize) {
 			pfree = compress(ws, pe, elen, len, pfree, vertexCnt);
 			if (pfree + degrees[x] > wsSize) {
 					throw "ERROR. Not enough space in ws";
@@ -393,7 +392,8 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		for (int i = 0; i < len[newElem]; ++i) {
 			mask[ws[pfree + i]] = 1;
 		}
-		vector<int> ind;
+		int indCnt = 0;
+
 		// поиск неразличимых вершин
 		for (int i = 0; i < len[newElem]; ++i) {
 			int y = ws[pfree + i];
@@ -402,9 +402,9 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, len[newElem], was);
 
 				if (indistinguishable) {
-					//indis.push(y);
 					//debug_nodes.push_back(y);
-					ind.push_back(y);
+					ws[pfree + len[newElem] + indCnt] = y;
+					++indCnt;
 				}
 			}
 		}
@@ -414,8 +414,8 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		//spn_sz[newElem] = spn_sz[x];
 		mask[x] = 0;
 
-		for (auto& e : ind) {
-			mask[e] = 2;
+		for (int y = pfree + len[newElem]; y < pfree + len[newElem] + indCnt; ++y) {
+			mask[ws[y]] = 2;
 		}
 
 		for (int i = pe[x]; i < pe[x] + elen[x]; ++i) {
