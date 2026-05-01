@@ -311,6 +311,9 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 	int* len = new int[2 * n];
 	int* elen = new int[2 * n] {};
 	int* spn_sz = new int[2 * n];
+	int* spn = new int[n] {};
+	int* spn_pe = new int[n + 1] {};
+
 	int* parent = new int[2 * n];
 
 	int* degrees = new int[2 * n];
@@ -328,11 +331,12 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 		mask[i] = 0;
 		degrees[i] = len[i];
 		spn_sz[i] = 1;
+		spn_pe[i] = -1;
 		parent[i] = i;
 		act.push(i);
 	}
 	pe[n] = Rst[n];
-	MinDegree_(n, wsSize, pe, ws, len, elen, spn_sz, parent, was, mask, degrees, act, perm);
+	MinDegree_(n, wsSize, pe, ws, len, elen, spn_sz, spn, spn_pe, parent, was, mask, degrees, act, perm);
 
 	delete[] ws;
 	delete[] pe;
@@ -347,7 +351,8 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 }
 
 
-void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
+void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* elen, 
+	int* spn_sz, int* spn, int* spn_pe, int* parent,
 	int* was, int* mask, int* degrees, Active_nodes& act, int* perm) {
 	using namespace std;
 
@@ -379,14 +384,26 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		mask[x] = counter;
 
 		// временная пометка для сравнений
-		for (int i = 0; i < len[newElem]; ++i) {
-			mask[ws[pfree + i]] = counter;
-		}
-		int indCnt = 0;
+		//for (int i = 0; i < len[newElem]; ++i) {
+		//	mask[ws[pfree + i]] = counter;
+		//}
+		//int indCnt = 0;
 
 		// поиск неразличимых вершин
 		for (int i = 0; i < len[newElem]; ++i) {
 			int y = ws[pfree + i];
+			int real_sz = 0;
+			for (int k = 0; k < len[y]; ++k) {
+				if (pe[ws[pe[y] + k]] > EMPTY) {
+					mask[ws[pe[y] + k]] = counter;
+					++real_sz;
+				}
+			}
+			mask[y] = counter;
+			for (int j = i + 1; len[newElem]; ++j) {
+				int t = ws[pfree + j];
+				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, real_sz, was);
+			}
 			if (degrees[x] == degrees[y]) {
 
 				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, len[newElem], was);

@@ -21,6 +21,7 @@ int compress(int* ws, int* pe, const int* elen, const int* len, const int& pfree
 
 inline int compressPath(int x, int* parent);
 
-void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
+void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* elen,
+	int* spn_sz, int* spn, int* spn_pe, int* parent,
 	int* was, int* mask, int* degrees, Active_nodes& act, int* perm);
 void MinDegree(const int n, const int* Rst, const int* Col, int* perm);
