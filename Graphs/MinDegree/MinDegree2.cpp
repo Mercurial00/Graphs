@@ -127,7 +127,7 @@ bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent,
 	for (int p = pe[x]; p < pe[x] + elen[x]; ++p) {
 		int id = ws[p];
 		while (parent[id] != id) {
-			id = parent[id];
+			id = compressPath(id, parent);
 		}
 		if (pe[id] <= EMPTY)
 			continue;
@@ -136,6 +136,15 @@ bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent,
 				mask[ws[j]] = 0;
 				was[k++] = ws[j];
 			//	DIFFERENT_VERTEXES_VISIT_CNT++;
+			}
+			else if (mask[ws[j]] != 0) {
+				mask[x] = counter;
+
+				for (int i = 0; i < k; ++i) {
+					mask[was[i]] = counter;
+				}
+
+				return false;
 			}
 			//else {
 			//	SIMILAR_VERTEXES_VISIT_CNT++;
@@ -156,6 +165,15 @@ bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent,
 			mask[ws[p]] = 0;
 			was[k++] = ws[p];
 		//	DIFFERENT_VERTEXES_VISIT_CNT++;
+		}
+		else if (mask[ws[p]] != 0) {
+			mask[x] = counter;
+
+			for (int i = 0; i < k; ++i) {
+				mask[was[i]] = counter;
+			}
+
+			return false;
 		}
 		//else {
 		//	SIMILAR_VERTEXES_VISIT_CNT++;
@@ -180,7 +198,7 @@ int degree(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, int
 	for (; p < pe[x] + elen[x]; ++p) {
 		int id = ws[p];
 		while (parent[id] != id) {
-			id = parent[id];
+			id = compressPath(id, parent);
 		}
 		if (pe[id] <= EMPTY)
 			continue;
@@ -280,6 +298,12 @@ inline void prepareVertex(int x, int* pe, int* ws, int* len, int* elen, int* par
 	int p = pe[x];
 	for (int p = pe[x]; p < pe[x] + length; ++p) {
 		int curr = ws[p];
+		if (pe[curr] <= EMPTY) {
+			std::swap(ws[p], ws[pe[x] + len[x] - 1]);
+			--len[x];
+			--p;
+			continue;
+		}
 		for (int j = pe[curr]; j < pe[curr] + elen[curr];) {
 			if (pe[ws[j]] <= EMPTY) {
 				std::swap(ws[j], ws[pe[curr] + elen[curr] - 1]);
@@ -311,8 +335,6 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 	int* len = new int[2 * n];
 	int* elen = new int[2 * n] {};
 	int* spn_sz = new int[2 * n];
-	int* spn = new int[n] {};
-	int* spn_pe = new int[n + 1] {};
 
 	int* parent = new int[2 * n];
 
@@ -331,12 +353,11 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 		mask[i] = 0;
 		degrees[i] = len[i];
 		spn_sz[i] = 1;
-		spn_pe[i] = -1;
 		parent[i] = i;
 		act.push(i);
 	}
 	pe[n] = Rst[n];
-	MinDegree_(n, wsSize, pe, ws, len, elen, spn_sz, spn, spn_pe, parent, was, mask, degrees, act, perm);
+	MinDegree_(n, wsSize, pe, ws, len, elen, spn_sz, parent, was, mask, degrees, act, perm);
 
 	delete[] ws;
 	delete[] pe;
@@ -352,7 +373,7 @@ void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
 
 
 void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* elen, 
-	int* spn_sz, int* spn, int* spn_pe, int* parent,
+	int* spn_sz, int* parent,
 	int* was, int* mask, int* degrees, Active_nodes& act, int* perm) {
 	using namespace std;
 
@@ -384,26 +405,15 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		mask[x] = counter;
 
 		// временная пометка для сравнений
-		//for (int i = 0; i < len[newElem]; ++i) {
-		//	mask[ws[pfree + i]] = counter;
-		//}
-		//int indCnt = 0;
+		for (int i = 0; i < len[newElem]; ++i) {
+			mask[ws[pfree + i]] = counter;
+		}
+		int indCnt = 0;
 
 		// поиск неразличимых вершин
 		for (int i = 0; i < len[newElem]; ++i) {
 			int y = ws[pfree + i];
-			int real_sz = 0;
-			for (int k = 0; k < len[y]; ++k) {
-				if (pe[ws[pe[y] + k]] > EMPTY) {
-					mask[ws[pe[y] + k]] = counter;
-					++real_sz;
-				}
-			}
-			mask[y] = counter;
-			for (int j = i + 1; len[newElem]; ++j) {
-				int t = ws[pfree + j];
-				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, real_sz, was);
-			}
+
 			if (degrees[x] == degrees[y]) {
 
 				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, len[newElem], was);
