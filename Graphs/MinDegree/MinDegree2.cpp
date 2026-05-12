@@ -21,6 +21,9 @@ struct Active_nodes {
 	Active_nodes(const int& size, int* degrees) : active(size + 1), degrees(degrees), _min_deg(size) {}
 
 	void push(const size_t& node) {
+		if (active[degrees[node]].empty()) {
+			active[degrees[node]].reserve(1000);
+		}
 		active[degrees[node]].push_back(node);
 		if (degrees[node] < _min_deg) {
 			_min_deg = degrees[node];
