@@ -125,10 +125,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\mtx_read\mmio.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MinDegree2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\mtx_read\matrix.h" />
+    <ClInclude Include="..\..\mtx_read\mmio.h" />
     <ClInclude Include="MinDegree2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
