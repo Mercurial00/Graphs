@@ -1,6 +1,7 @@
 //#include <iostream>
 #include "MinDegree2.h"
 #include <iostream>
+#include <chrono>
 //#include <iomanip>
 
 #define EMPTY (-1)
@@ -14,13 +15,13 @@ static int32_t counter = 1;
 //std::vector<int> debug_nodes;
 
 struct Active_nodes {
-	std::vector<std::vector<size_t>> active;
+	std::vector<std::vector<int>> active;
 	int* degrees;
 	int _min_deg;
 
 	Active_nodes(const int& size, int* degrees) : active(size + 1), degrees(degrees), _min_deg(size) {}
 
-	void push(const size_t& node) {
+	void push(const int& node) {
 		if (active[degrees[node]].empty()) {
 			active[degrees[node]].reserve(1000);
 		}
@@ -30,14 +31,14 @@ struct Active_nodes {
 		}
 	}
 
-	size_t min_node() {
+	int min_node() {
 		while (true) {
 			while (active[_min_deg].empty()) ++_min_deg;
 			while (!active[_min_deg].empty() && degrees[active[_min_deg].back()] != _min_deg) {
 				active[_min_deg].pop_back();
 			}
 			if (!active[_min_deg].empty() && degrees[active[_min_deg].back()] == _min_deg) {
-				size_t t = active[_min_deg].back();
+				int t = active[_min_deg].back();
 				active[_min_deg].pop_back();
 				return t;
 			}
@@ -86,10 +87,7 @@ void reach(const int& x, int pfree, int newElem, int* ws, int* pe, int* len, int
 	int p = pe[x];
 	len[newElem] = 0;
 	for (; p < pe[x] + elen[x]; ++p) {
-		int id = ws[p];
-		while (parent[id] != id) {
-			id = compressPath(id, parent);
-		}
+		int id = compressPath(ws[p], parent);
 		if (pe[id] <= EMPTY) 
 			continue;
 		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
@@ -128,10 +126,8 @@ bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent,
 	int k = 0;
 	mask[x] = 0;
 	for (int p = pe[x]; p < pe[x] + elen[x]; ++p) {
-		int id = ws[p];
-		while (parent[id] != id) {
-			id = compressPath(id, parent);
-		}
+		int id = compressPath(ws[p], parent);
+
 		if (pe[id] <= EMPTY)
 			continue;
 		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
@@ -199,10 +195,8 @@ int degree(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, int
 
 	int p = pe[x];
 	for (; p < pe[x] + elen[x]; ++p) {
-		int id = ws[p];
-		while (parent[id] != id) {
-			id = compressPath(id, parent);
-		}
+		int id = compressPath(ws[p], parent);
+
 		if (pe[id] <= EMPTY)
 			continue;
 		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
@@ -239,6 +233,7 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 	pe[newElem] = pfree;
 	spn_sz[newElem] = spn_sz[oldVar];
 	elen[newElem] = 0;
+	//int cnt = 0;
 	for (int i = pfree; i < pfree + len[newElem]; ++i) {
 		if (mask[ws[i]] == counter - 1) {
 			pe[ws[i]] = EMPTY;
@@ -254,8 +249,10 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 			--i;
 			continue;
 		}
+		//ws[pfree + cnt++] = ws[i];
 		mask[ws[i]] = counter - 1;
 	}
+	//len[newElem] = cnt;
 	pfree += len[newElem];
 	int length = len[newElem];
 	for (int i = pe[newElem]; i < pe[newElem] + length; ++i) {
@@ -279,7 +276,7 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 				++elen[curr];
 				++j;
 			}
-			else if (found && (ws[j] == oldVar || parent[ws[j]] == newElem)) {
+			else if (found && (ws[j] == oldVar || parent[ws[j]] == newElem || mask[ws[j]] == counter - 1)) {
 				std::swap(ws[j], ws[pe[curr] + len[curr] - 1]);
 				--len[curr];
 			}
@@ -298,7 +295,16 @@ void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
 
 inline void prepareVertex(int x, int* pe, int* ws, int* len, int* elen, int* parent) {
 	int length = len[x];
-	int p = pe[x];
+	int t = pe[x];
+	int cnt = 0;
+	for (int p = pe[x]; p < pe[x] + length; ++p) {
+		int curr = compressPath(ws[p], parent);
+		if (pe[curr] <= EMPTY) {
+			continue;
+		}
+		ws[t + cnt++] = curr;
+	}
+	length = len[x] = cnt;
 	for (int p = pe[x]; p < pe[x] + length; ++p) {
 		int curr = ws[p];
 		if (pe[curr] <= EMPTY) {
@@ -384,12 +390,22 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 	int vertexCnt = n;
 	int num = 0;
 
+	//static chrono::duration<double> deg_t{ 0 };
+	//static std::chrono::duration<double> reach_t{ 0 };
+	//static std::chrono::duration<double> reach_cmp_t{ 0 };
+	//static std::chrono::duration<double> transform_t{ 0 };
+	//static std::chrono::duration<double> prep_t{ 0 };
+
+
 	while (num < n) {
 		int x = act.min_node(); // выбор узла с минимальной степенью
 		perm[x] = num++;
-		prepareVertex(x, pe, ws, len, elen, parent); // очистка списков смежности от лишних узлов
-		//debug_nodes.push_back(x);
-
+		{
+			//auto t1 = std::chrono::steady_clock::now();
+			prepareVertex(x, pe, ws, len, elen, parent); // очистка списков смежности от лишних узлов
+			//prep_t += std::chrono::steady_clock::now() - t1;
+			//debug_nodes.push_back(x);
+		}
 		int newElem = vertexCnt++;
 		mask[x] = counter;
 		if (pfree + 2 * degrees[x] > wsSize) {
@@ -402,7 +418,11 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		}
 
 		// нахождение достижимого множества текущей вершины
-		reach(x, pfree, newElem, ws, pe, len, elen, parent, mask, degrees, degrees[x]);
+		{
+			//auto t1 = std::chrono::steady_clock::now();
+			reach(x, pfree, newElem, ws, pe, len, elen, parent, mask, degrees, degrees[x]);
+			//reach_t += std::chrono::steady_clock::now() - t1;
+		}
 		counter += 2;
 		//if (counter < 0) counter = 0;
 		mask[x] = counter;
@@ -418,8 +438,9 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 			int y = ws[pfree + i];
 
 			if (degrees[x] == degrees[y]) {
-
+				//auto t1 = std::chrono::steady_clock::now();
 				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, len[newElem], was);
+				//reach_cmp_t += std::chrono::steady_clock::now() - t1;
 
 				if (indistinguishable) {
 					//debug_nodes.push_back(y);
@@ -448,7 +469,11 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 			degrees[ws[i]] = EMPTY;
 		}
 
-		transform(pe, ws, len, elen, spn_sz, parent, was, degrees, mask, perm, pfree, x, newElem, num, wsSize);
+		{
+			//auto t1 = std::chrono::steady_clock::now();
+			transform(pe, ws, len, elen, spn_sz, parent, was, degrees, mask, perm, pfree, x, newElem, num, wsSize);
+			//transform_t += std::chrono::steady_clock::now() - t1;
+		}
 		++counter;
 		//if (counter < 0) counter = 0;
 
@@ -456,13 +481,23 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		int p = pe[newElem];
 		for (int i = 0; i < len[newElem]; ++i) {
 			int curr = ws[p + i];
+			
+			//auto t1 = std::chrono::steady_clock::now();
 			degrees[curr] = degree(curr, ws, pe, len, elen, parent, spn_sz, mask, degrees);
+			//deg_t += std::chrono::steady_clock::now() - t1;
+
 			act.push(curr);
 			++counter;
 			//if (counter < 0) counter = 0;
 
 		}
 	}
+	//cout << "\ndegree() time: " << deg_t.count();
+	//cout << "\nreach() time: " << reach_t.count();
+	//cout << "\nreach_cmp() time: " << reach_cmp_t.count();
+	//cout << "\ntransform() time: " << transform_t.count();
+	//cout << "\nprepareVertex() time: " << prep_t.count() << endl;
+
 	//cout << "Total different vertexes visits count: " << DIFFERENT_VERTEXES_VISIT_CNT << '\n';
 	//cout << "Total similar vertexes visits count: " << SIMILAR_VERTEXES_VISIT_CNT << '\n';
 	//cout << "Percentage of empty visits: " << fixed << setprecision(2)
