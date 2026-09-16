@@ -472,12 +472,12 @@ private:
 
         // write with parallel for into main arrays to get along with NUMA
     #pragma omp parallel for
-        for (size_t i = 0; i < m; ++i) {
+        for (long long i = 0; i < m; ++i) {
             Rst[i] = RstTmp[i];
             Rst[i+1] = RstTmp[i+1];
         }
     #pragma omp parallel for
-        for (size_t i = 0; i < nz; ++i) {
+        for (long long i = 0; i < nz; ++i) {
             Col[i] = ColTmp[i];
             Val[i] = ValTmp[i];
         }

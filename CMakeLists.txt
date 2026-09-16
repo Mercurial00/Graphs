@@ -27,6 +27,10 @@ target_sources(mmio
 	        mtx_read/matrix.h
 )
 
+find_package(OpenMP REQUIRED)
+target_link_libraries(mmio PRIVATE OpenMP::OpenMP_CXX)
+
+
 add_library(MinDegree)
 target_sources(MinDegree
 	PRIVATE

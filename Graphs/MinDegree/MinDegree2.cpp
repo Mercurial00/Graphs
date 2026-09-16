@@ -1,29 +1,44 @@
 //#include <iostream>
 #include "MinDegree2.h"
+#include <iostream>
+#include <chrono>
+//#include <iomanip>
+
+#define EMPTY (-1)
+#define FLIP(x) (-(x) - 2)
+static int COMPRESS_CNT = 0;
+
+static int32_t counter = 1;
+//static uint64_t SIMILAR_VERTEXES_VISIT_CNT = 0;
+//static uint64_t DIFFERENT_VERTEXES_VISIT_CNT = 0;
+
+//std::vector<int> debug_nodes;
 
 struct Active_nodes {
-	std::vector<std::vector<size_t>> active;
+	std::vector<std::vector<int>> active;
 	int* degrees;
 	int _min_deg;
 
-	Active_nodes(const int& size, int* degrees) : active(size), degrees(degrees), _min_deg(size) {}
+	Active_nodes(const int& size, int* degrees) : active(size + 1), degrees(degrees), _min_deg(size) {}
 
-	void push(const size_t& node) {
-		if (active[degrees[node]].capacity() == 0) active[degrees[node]].reserve(100);
+	void push(const int& node) {
+		if (active[degrees[node]].capacity() == 0) {
+			active[degrees[node]].reserve(1000);
+		}
 		active[degrees[node]].push_back(node);
 		if (degrees[node] < _min_deg) {
 			_min_deg = degrees[node];
 		}
 	}
 
-	size_t min_node() {
+	int min_node() {
 		while (true) {
 			while (active[_min_deg].empty()) ++_min_deg;
 			while (!active[_min_deg].empty() && degrees[active[_min_deg].back()] != _min_deg) {
 				active[_min_deg].pop_back();
 			}
 			if (!active[_min_deg].empty() && degrees[active[_min_deg].back()] == _min_deg) {
-				size_t t = active[_min_deg].back();
+				int t = active[_min_deg].back();
 				active[_min_deg].pop_back();
 				return t;
 			}
@@ -33,212 +48,459 @@ struct Active_nodes {
 	~Active_nodes() = default;
 };
 
+int compress(int* ws, int* pe, const int* elen, const int* len, const int& pfree, const int nodesCnt) {
+	int newPfree = 0;
 
-std::vector<int> reach(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree) {
-	using namespace std;
-	int k = 0;
-	vector<int> reach_(degree);
-	//reach_.reserve(degree);
-	mask[x] = 2;
-	for (const auto& i : NODES[x]) {
-		if (mask[i] == 0) {
-			mask[i] = 2;
-			reach_[k++] = i;
+	for (int i = 0; i < nodesCnt; ++i) {
+		if (pe[i] <= EMPTY)
+			continue;
+
+		int old = pe[i];
+		int length = len[i];
+		pe[i] = newPfree;
+
+		for (int j = 0; j < length; ++j) {
+			ws[newPfree++] = ws[old + j];
 		}
-		else if (mask[i] == -1) {
-			for (const auto& j : NODES[i]) {
-				if (mask[j] == 0) {
-					mask[j] = 2;
-					reach_[k++] = j;
-				}
-			}
-		}
-		if (k == degree) break;
 	}
-	mask[x] = 0;
-
-	for (const int& i : reach_) {
-		mask[i] = 0;
-	}
-
-	return reach_;
+	
+	return newPfree;
 }
 
-bool reach_cmp(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, const int& degree, int was[]) {
+inline int compressPath(int x, int* parent) {
+	int r = x;
+	while (parent[r] != r) {
+		r = parent[r];
+	}
+	while (parent[x] != x) {
+		int p = parent[x];
+		parent[x] = r;
+		x = p;
+	}
+	return r;
+}
+
+void reach(const int& x, int pfree, int newElem, int* ws, int* pe, int* len, int* elen, int* parent, int* mask, int* degrees, const int deg) {
 	using namespace std;
 	int k = 0;
-	//bool is_equal = true;
-	mask[x] = 2;
-	for (const auto& i : NODES[x]) {
-		if (mask[i] == 3) {
-			mask[i] = 2;
-			was[k++] = i;
-		}
-		else if (mask[i] == -1) {
-			for (const auto& j : NODES[i]) {
-				if (mask[j] == 3) {
-					mask[j] = 2;
-					was[k++] = j;
-				}
+
+	int p = pe[x];
+	len[newElem] = 0;
+	for (; p < pe[x] + elen[x]; ++p) {
+		int id = compressPath(ws[p], parent);
+		if (pe[id] <= EMPTY) 
+			continue;
+		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
+			if (mask[ws[j]] != counter) {
+				mask[ws[j]] = counter;
+				ws[pfree++] = ws[j];
+				k++;
+				len[newElem]++;
+			//	DIFFERENT_VERTEXES_VISIT_CNT++;
 			}
+			//else {
+			//	SIMILAR_VERTEXES_VISIT_CNT++;
+			//}
 		}
+	}
+	for (; p < pe[x] + len[x]; ++p) {
+		if (mask[ws[p]] != counter) {
+			mask[ws[p]] = counter;
+			ws[pfree++] = ws[p];
+			k++;
+			len[newElem]++;
+			//DIFFERENT_VERTEXES_VISIT_CNT++;
+			//reach_.push_back(ws[p]);
+		}
+		//else {
+		//	SIMILAR_VERTEXES_VISIT_CNT++;
+		//}
+	}
+
+	return;
+}
+
+bool reach_cmp(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, int* mask, int* degrees
+	, const int& degree, int was[]) {
+	using namespace std;
+	int k = 0;
+	mask[x] = 0;
+	for (int p = pe[x]; p < pe[x] + elen[x]; ++p) {
+		int id = compressPath(ws[p], parent);
+
+		if (pe[id] <= EMPTY)
+			continue;
+		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
+			if (mask[ws[j]] == counter) {
+				mask[ws[j]] = 0;
+				was[k++] = ws[j];
+			//	DIFFERENT_VERTEXES_VISIT_CNT++;
+			}
+			else if (mask[ws[j]] != 0) {
+				mask[x] = counter;
+
+				for (int i = 0; i < k; ++i) {
+					mask[was[i]] = counter;
+				}
+
+				return false;
+			}
+			//else {
+			//	SIMILAR_VERTEXES_VISIT_CNT++;
+			//}
+		}
+		if (k == degree) {
+			mask[x] = counter;
+
+			for (int i = 0; i < k; ++i) {
+				mask[was[i]] = counter;
+			}
+
+			return true;
+		}
+	}
+	for (int p = pe[x] + elen[x]; p < pe[x] + len[x]; ++p) {
+		if (mask[ws[p]] == counter) {
+			mask[ws[p]] = 0;
+			was[k++] = ws[p];
+		//	DIFFERENT_VERTEXES_VISIT_CNT++;
+		}
+		else if (mask[ws[p]] != 0) {
+			mask[x] = counter;
+
+			for (int i = 0; i < k; ++i) {
+				mask[was[i]] = counter;
+			}
+
+			return false;
+		}
+		//else {
+		//	SIMILAR_VERTEXES_VISIT_CNT++;
+		//}
 		if (k == degree) break;
 	}
-	mask[x] = 3;
+	mask[x] = counter;
 
 	for (int i = 0; i < k; ++i) {
-		mask[was[i]] = 3;
+		mask[was[i]] = counter;
 	}
 
 	return k == degree;
 }
 
-int degree(const int& x, const std::vector<std::vector<int>>& NODES, char* mask, int was[]) {
+int degree(const int& x, int* ws, int* pe, int* len, int* elen, int* parent, int* spn_sz, int* mask, int* degrees) {
 	int deg = 0;
-	mask[x] = 2;
+	mask[x] = counter;
 	int k = 0;
-	was[k++] = x;
-	for (const auto& i : NODES[x]) {
-		if (mask[i] == 0) {
-			++deg;
-			mask[i] = 2;
-			was[k++] = i;
-		}
-		else if (mask[i] == -1) {
-			for (const auto& j : NODES[i]) {
-				if (mask[j] == 0) {
-					++deg;
-					mask[j] = 2;
-					was[k++] = j;
-				}
+
+	int p = pe[x];
+	for (; p < pe[x] + elen[x]; ++p) {
+		int id = compressPath(ws[p], parent);
+
+		if (pe[id] <= EMPTY)
+			continue;
+		for (int j = pe[id] + elen[id]; j < pe[id] + len[id]; ++j) {
+			if (mask[ws[j]] != counter) {
+				mask[ws[j]] = counter;
+				deg += spn_sz[ws[j]];
+			//	DIFFERENT_VERTEXES_VISIT_CNT++;
 			}
+			//else {
+			//	SIMILAR_VERTEXES_VISIT_CNT++;
+			//}
 		}
 	}
-
-	for (int i = 0; i < k; ++i) {
-		mask[was[i]] = 0;
+	for (; p < pe[x] + len[x]; ++p) {
+		if (mask[ws[p]] != counter) {
+			mask[ws[p]] = counter;
+			//was[k++] = ws[p];
+			deg += spn_sz[ws[p]];
+		//	DIFFERENT_VERTEXES_VISIT_CNT++;
+		}
+		//else {
+		//	SIMILAR_VERTEXES_VISIT_CNT++;
+		//}
 	}
 
 	return deg;
 }
 
-void transform_(std::queue<int>& x, std::vector<std::vector<int>>& NODES, char* mask,
-				int* perm, int& num, const int& deg, Active_nodes& act) {
-	using namespace std;
-	int curr = x.back();
-	size_t merged_cnt = x.size() - 1;
-	while (x.size() > 1) {
-		vector<int>().swap(NODES[x.front()]);
-		mask[x.front()] = 1;
-		perm[x.front()] = num++;
-		//act.erase(x.front());
-		act.degrees[x.front()] = -1;
-		x.pop();
-	}
-	//act.erase(curr);
-	mask[curr] = -1;
-	perm[curr] = num++;
 
-	vector<int> tmp(deg - merged_cnt);
-	for (size_t j = 0, k = 0; j < NODES[curr].size(); ++j) {
-		const int& y = NODES[curr][j];
-		if (mask[y] == 0) {
-			size_t i = 0;
-			while (i < NODES[y].size()) {
-				if (NODES[y][i] == curr) {
-					break;
-				}
-				if (mask[NODES[y][i]] == 1) {
-					NODES[y][i] = curr;
-					break;
-				}
-				++i;
+void transform(int* pe, int* ws, int* len, int* elen, int* spn_sz, int* parent,
+	int* was, int* degrees, int* mask, int* perm, int& pfree, int oldVar, int newElem, int& num, const int wsSize) {
+	
+	parent[newElem] = newElem;
+	pe[newElem] = pfree;
+	spn_sz[newElem] = spn_sz[oldVar];
+	elen[newElem] = 0;
+	//int cnt = 0;
+	for (int i = pfree; i < pfree + len[newElem]; ++i) {
+		if (mask[ws[i]] == counter - 1) {
+			pe[ws[i]] = EMPTY;
+			parent[ws[i]] = newElem;
+			//spn_sz[newElem] += spn_sz[node];
+			spn_sz[ws[i]] = 0;
+			elen[ws[i]] = 0;
+			degrees[ws[i]] = EMPTY;
+			perm[ws[i]] = num++;
+			mask[ws[i]] = 0;
+			std::swap(ws[i], ws[pfree + len[newElem] - 1]);
+			--len[newElem];
+			--i;
+			continue;
+		}
+		//ws[pfree + cnt++] = ws[i];
+		mask[ws[i]] = counter - 1;
+	}
+	//len[newElem] = cnt;
+	pfree += len[newElem];
+	int length = len[newElem];
+	for (int i = pe[newElem]; i < pe[newElem] + length; ++i) {
+		bool found = false;
+		int curr = ws[i];
+		for (int j = pe[curr]; j < pe[curr] + elen[curr];) {
+			if (pe[ws[j]] <= EMPTY) {
+				std::swap(ws[j], ws[pe[curr] + elen[curr] - 1]);
+				--elen[curr];
 			}
-			if (i == NODES[y].size()) {
-				NODES[y].push_back(curr);
+			else {
+				++j;
 			}
-			tmp[k++] = y;
+		}
+		for (int j = pe[curr] + elen[curr]; j < pe[curr] + len[curr];) {
+			
+			if (!found && (ws[j] == oldVar || parent[ws[j]] == newElem)) {
+				found = true;
+				ws[j] = newElem;
+				std::swap(ws[pe[curr] + elen[curr]], ws[j]);
+				++elen[curr];
+				++j;
+			}
+			else if (found && (ws[j] == oldVar || parent[ws[j]] == newElem || mask[ws[j]] == counter - 1)) {
+				std::swap(ws[j], ws[pe[curr] + len[curr] - 1]);
+				--len[curr];
+			}
+			else if (pe[ws[j]] <= EMPTY) {
+				std::swap(ws[j], ws[pe[curr] + len[curr] - 1]);
+				--len[curr];
+			}
+			else {
+				++j;
+			}
 		}
 	}
-	act.degrees[curr] = -1;
-	NODES[curr].swap(tmp);
+
+
 }
 
+inline void prepareVertex(int x, int* pe, int* ws, int* len, int* elen, int* parent) {
+	int length = len[x];
+	int t = pe[x];
+	int cnt = 0;
+	for (int p = pe[x]; p < pe[x] + length; ++p) {
+		int curr = compressPath(ws[p], parent);
+		if (pe[curr] <= EMPTY) {
+			continue;
+		}
+		ws[t + cnt++] = curr;
+	}
+	length = len[x] = cnt;
+	for (int p = pe[x]; p < pe[x] + length; ++p) {
+		int curr = ws[p];
+		if (pe[curr] <= EMPTY) {
+			std::swap(ws[p], ws[pe[x] + len[x] - 1]);
+			--len[x];
+			--p;
+			continue;
+		}
+		for (int j = pe[curr]; j < pe[curr] + elen[curr];) {
+			if (pe[ws[j]] <= EMPTY) {
+				std::swap(ws[j], ws[pe[curr] + elen[curr] - 1]);
+				--elen[curr];
+			}
+			else {
+				++j;
+			}
+		}
+		for (int j = pe[curr] + elen[curr]; j < pe[curr] + len[curr];) {
+			if (pe[ws[j]] <= EMPTY) {
+				std::swap(ws[j], ws[pe[curr] + len[curr] - 1]);
+				--len[curr];
+			}
+			else {
+				++j;
+			}
+		}
+	}
+}
 
-void MinDegree(const int& n, const int* Rst, const int* Col, int* perm) {
-	using namespace std;
-	int* degrees = new int[n];
-	char* mask = new char[n];
+// preparation
+void MinDegree(const int n, const int* Rst, const int* Col, int* perm) {
+	const int wsSize = (int)(2 * Rst[n]);
+	//const int wsSize = (int)(Rst[n] + 2 * n);
+
+	int* ws = new int[wsSize];
+	int* pe = new int[2 * n + 1];
+	int* len = new int[2 * n];
+	int* elen = new int[2 * n] {};
+	int* spn_sz = new int[2 * n];
+
+	int* parent = new int[2 * n];
+
+	int* degrees = new int[2 * n];
+	int* mask = new int[n] {};
 	int* was = new int[n];
-	vector<vector<int>> NODES(n);
+
 	Active_nodes act(n, degrees);
+
 	for (int i = 0; i < n; ++i) {
-		NODES[i].insert(NODES[i].end(), Col + Rst[i], Col + Rst[i + 1]);
+		pe[i] = Rst[i];
+		for (int j = Rst[i]; j < Rst[i + 1]; ++j) {
+			ws[j] = Col[j];
+		}
+		len[i] = Rst[i + 1] - Rst[i];
 		mask[i] = 0;
-		degrees[i] = NODES[i].size();
+		degrees[i] = len[i];
+		spn_sz[i] = 1;
+		parent[i] = i;
 		act.push(i);
 	}
+	pe[n] = Rst[n];
+	MinDegree_(n, wsSize, pe, ws, len, elen, spn_sz, parent, was, mask, degrees, act, perm);
 
-	int num = 0;
-	queue<int> indis;
+	delete[] ws;
+	delete[] pe;
+	delete[] len;
+	delete[] elen;
+	delete[] spn_sz;
+	delete[] parent;
 
-	while (num < n) {
-		int x = act.min_node();
-
-		// нахождение достижимого множества текущей вершины
-		vector<int> x_reach(reach(x, NODES, mask, degrees[x]));
-
-		// временная пометка для сравнений
-		for (const auto& node : x_reach) {
-			mask[node] = 3;
-		}
-		mask[x] = 3;
-
-		// поиск неразличимых вершин
-		for (const auto& y : x_reach) { 
-			if (degrees[x] == degrees[y]) {
-
-				bool indistinguishable = reach_cmp(y, NODES, mask, degrees[y], was);
-
-				if (indistinguishable) {
-					indis.push(y);
-				}
-			}
-		}
-
-		// Возвращение к настоящим пометкам
-		for (const auto& node : x_reach) {
-			mask[node] = 0; 
-		}
-		mask[x] = 0;
-
-		// слияние исключённых вершин с текущей
-		for (const auto& y : NODES[x]) {	
-			if (mask[y] == -1) {
-				//act.erase(y);
-				degrees[y] = -1;
-				vector<int>().swap(NODES[y]);
-				mask[y] = 1;
-			}
-		}
-		NODES[x].swap(x_reach);
-		indis.push(x);
-
-		transform_(indis, NODES, mask, perm, num, degrees[x], act);
-
-		indis.pop(); // полная очистка очереди
-
-		// обновление степеней
-		for (size_t i = 0; i < NODES[x].size(); ++i) { 
-			if (mask[NODES[x][i]] == 0) {
-				//act.erase(NODES[x][i]);
-				degrees[NODES[x][i]] = degree(NODES[x][i], NODES, mask, was);
-				act.push(NODES[x][i]);
-			}
-		}
-	}
 	delete[] was;
 	delete[] mask;
 	delete[] degrees;
+}
+
+
+void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* elen, 
+	int* spn_sz, int* parent,
+	int* was, int* mask, int* degrees, Active_nodes& act, int* perm) {
+	using namespace std;
+
+	int pfree = pe[n];
+	int vertexCnt = n;
+	int num = 0;
+
+	//static chrono::duration<double> deg_t{ 0 };
+	//static std::chrono::duration<double> reach_t{ 0 };
+	//static std::chrono::duration<double> reach_cmp_t{ 0 };
+	//static std::chrono::duration<double> transform_t{ 0 };
+	//static std::chrono::duration<double> prep_t{ 0 };
+
+
+	while (num < n) {
+		int x = act.min_node(); // выбор узла с минимальной степенью
+		perm[x] = num++;
+		{
+			//auto t1 = std::chrono::steady_clock::now();
+			prepareVertex(x, pe, ws, len, elen, parent); // очистка списков смежности от лишних узлов
+			//prep_t += std::chrono::steady_clock::now() - t1;
+			//debug_nodes.push_back(x);
+		}
+		int newElem = vertexCnt++;
+		mask[x] = counter;
+		if (pfree + 2 * degrees[x] > wsSize) {
+			pfree = compress(ws, pe, elen, len, pfree, vertexCnt);
+			if (pfree + degrees[x] > wsSize) {
+				throw "ERROR. Not enough space in ws";
+			}
+			COMPRESS_CNT++;
+			std::cout << "compression function was called on step " << num << ". Total: " << COMPRESS_CNT << '\n';
+		}
+
+		// нахождение достижимого множества текущей вершины
+		{
+			//auto t1 = std::chrono::steady_clock::now();
+			reach(x, pfree, newElem, ws, pe, len, elen, parent, mask, degrees, degrees[x]);
+			//reach_t += std::chrono::steady_clock::now() - t1;
+		}
+		counter += 2;
+		//if (counter < 0) counter = 0;
+		mask[x] = counter;
+
+		// временная пометка для сравнений
+		for (int i = 0; i < len[newElem]; ++i) {
+			mask[ws[pfree + i]] = counter;
+		}
+		int indCnt = 0;
+
+		// поиск неразличимых вершин
+		for (int i = 0; i < len[newElem]; ++i) {
+			int y = ws[pfree + i];
+
+			if (degrees[x] == degrees[y]) {
+				//auto t1 = std::chrono::steady_clock::now();
+				bool indistinguishable = reach_cmp(y, ws, pe, len, elen, parent, mask, degrees, len[newElem], was);
+				//reach_cmp_t += std::chrono::steady_clock::now() - t1;
+
+				if (indistinguishable) {
+					//debug_nodes.push_back(y);
+					ws[pfree + len[newElem] + indCnt] = y;
+					++indCnt;
+				}
+			}
+		}
+		//std::sort(debug_nodes.begin(), debug_nodes.end());
+
+		degrees[newElem] = degrees[x] = EMPTY;
+		//spn_sz[newElem] = spn_sz[x];
+		mask[x] = counter - 1;
+
+		// пометка неразличимых с x вершин
+		for (int y = pfree + len[newElem]; y < pfree + len[newElem] + indCnt; ++y) {
+			mask[ws[y]] = counter - 1;
+		}
+
+		// слияние нового элемента с соседними элементами
+		for (int i = pe[x]; i < pe[x] + elen[x]; ++i) {
+			parent[ws[i]] = newElem;
+			pe[ws[i]] = FLIP(newElem);
+			elen[ws[i]] = 0;
+			spn_sz[ws[i]] = 0;
+			degrees[ws[i]] = EMPTY;
+		}
+
+		{
+			//auto t1 = std::chrono::steady_clock::now();
+			transform(pe, ws, len, elen, spn_sz, parent, was, degrees, mask, perm, pfree, x, newElem, num, wsSize);
+			//transform_t += std::chrono::steady_clock::now() - t1;
+		}
+		++counter;
+		//if (counter < 0) counter = 0;
+
+		// обновление степеней
+		int p = pe[newElem];
+		for (int i = 0; i < len[newElem]; ++i) {
+			int curr = ws[p + i];
+			
+			//auto t1 = std::chrono::steady_clock::now();
+			degrees[curr] = degree(curr, ws, pe, len, elen, parent, spn_sz, mask, degrees);
+			//deg_t += std::chrono::steady_clock::now() - t1;
+
+			act.push(curr);
+			++counter;
+			//if (counter < 0) counter = 0;
+
+		}
+	}
+	//cout << "\ndegree() time: " << deg_t.count();
+	//cout << "\nreach() time: " << reach_t.count();
+	//cout << "\nreach_cmp() time: " << reach_cmp_t.count();
+	//cout << "\ntransform() time: " << transform_t.count();
+	//cout << "\nprepareVertex() time: " << prep_t.count() << endl;
+
+	//cout << "Total different vertexes visits count: " << DIFFERENT_VERTEXES_VISIT_CNT << '\n';
+	//cout << "Total similar vertexes visits count: " << SIMILAR_VERTEXES_VISIT_CNT << '\n';
+	//cout << "Percentage of empty visits: " << fixed << setprecision(2)
+	//	<< (double)SIMILAR_VERTEXES_VISIT_CNT / (SIMILAR_VERTEXES_VISIT_CNT + DIFFERENT_VERTEXES_VISIT_CNT) * 100 << "%\n";
 }
 

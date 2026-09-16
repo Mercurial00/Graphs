@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 #include "MinDegree2.h"
+#include "../../mtx_read/mmio.cpp" 
 #include "../../mtx_read/mmio.h" 
 #include "../../mtx_read/matrix.h"
 
