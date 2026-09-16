@@ -22,7 +22,7 @@ struct Active_nodes {
 	Active_nodes(const int& size, int* degrees) : active(size + 1), degrees(degrees), _min_deg(size) {}
 
 	void push(const int& node) {
-		if (active[degrees[node]].empty()) {
+		if (active[degrees[node]].capacity() == 0) {
 			active[degrees[node]].reserve(1000);
 		}
 		active[degrees[node]].push_back(node);
@@ -411,7 +411,7 @@ void MinDegree_(const int n, const int wsSize, int* pe, int* ws, int* len, int* 
 		if (pfree + 2 * degrees[x] > wsSize) {
 			pfree = compress(ws, pe, elen, len, pfree, vertexCnt);
 			if (pfree + degrees[x] > wsSize) {
-					throw "ERROR. Not enough space in ws";
+				throw "ERROR. Not enough space in ws";
 			}
 			COMPRESS_CNT++;
 			std::cout << "compression function was called on step " << num << ". Total: " << COMPRESS_CNT << '\n';

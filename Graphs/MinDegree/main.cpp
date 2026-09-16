@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 #include "MinDegree2.h"
+#include "../../mtx_read/mmio.cpp" 
 #include "../../mtx_read/mmio.h" 
 #include "../../mtx_read/matrix.h"
 
@@ -12,7 +13,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
 	const char* filename;
 	if (argc < 2)
-		filename = "../../../matrixes/s3rmt3m3.mtx";
+		filename = "../../../matrixes/G3_circuit.mtx";
 	else {
 		filename = argv[1];
 	}
